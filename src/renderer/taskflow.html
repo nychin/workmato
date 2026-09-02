@@ -1,0 +1,123 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>工作番茄 · 任务流程管理器</title>
+    <link rel="stylesheet" href="./taskflow/taskflow.css" />
+  </head>
+  <body>
+    <main id="taskflow-app" class="taskflow-app" data-i18n-aria="taskflow.aria.app" aria-label="任务流程管理器">
+      <header class="window-bar">
+        <div class="window-brand">
+          <span class="brand-ball" aria-hidden="true"></span>
+          <span data-i18n="taskflow.brand">任务流程管理</span>
+        </div>
+        <strong id="bar-project-title" class="window-bar__title"><span class="window-bar__title-text"></span></strong>
+        <div class="window-actions">
+          <button id="window-always-on-top" class="window-button" data-i18n-aria="taskflow.aria.alwaysOnTop" data-i18n-title="taskflow.aria.alwaysOnTop" aria-label="置顶窗口" title="置顶窗口"><span class="window-icon window-icon--pin"></span></button>
+          <button id="window-minimize" class="window-button" data-i18n-aria="taskflow.aria.minimize" aria-label="最小化">—</button>
+          <button id="window-half-screen" class="window-button" data-i18n-aria="taskflow.aria.halfScreen" data-i18n-title="taskflow.halfScreen" aria-label="占满屏幕下半部分" title="下半屏">
+            <span class="window-icon window-icon--half-screen">
+              <svg viewBox="0 0 17.25 14.7" aria-hidden="true">
+                <path class="half-screen-icon__outline" d="M1.125 7.35V4.2 M4.2 1.125H13.05 M16.125 4.2V7.35"></path>
+                <path class="half-screen-icon__corner" d="M1.125 4.2A3.075 3.075 0 0 1 4.2 1.125 M13.05 1.125A3.075 3.075 0 0 1 16.125 4.2"></path>
+                <path class="half-screen-icon__fill" d="M0 7.35H17.25V11.7A3 3 0 0 1 14.25 14.7H3A3 3 0 0 1 0 11.7Z"></path>
+              </svg>
+            </span>
+          </button>
+          <button id="window-maximize" class="window-button" data-i18n-aria="taskflow.aria.maximize" aria-label="最大化">□</button>
+          <button id="window-close" class="window-button window-button--close" data-i18n-aria="common.close" aria-label="关闭">×</button>
+        </div>
+      </header>
+
+      <section class="workspace-shell">
+        <aside id="project-sidebar" class="project-sidebar">
+          <div class="sidebar-heading">
+            <button id="new-project" class="new-project-btn" data-i18n-title="taskflow.newItem" title="新建事项">
+              <span class="new-project-btn__plus" aria-hidden="true">＋</span>
+              <span data-i18n="taskflow.newItem">新建事项</span>
+            </button>
+            <button id="new-project-group" class="new-project-group-btn" data-i18n-title="taskflow.newProjectGroupTitle" data-i18n-aria="taskflow.aria.newProjectGroup" data-i18n="taskflow.newProjectGroup" title="新建分组" aria-label="新建任务分组">＋分组</button>
+          </div>
+          <div class="project-list-scroll">
+            <div id="project-list" class="project-list" role="listbox"></div>
+          </div>
+          <footer class="sidebar-footer">
+            <button id="show-archive" class="sidebar-secondary" data-i18n="taskflow.archiveBox">归档箱</button>
+          </footer>
+        </aside>
+
+        <section class="canvas-panel">
+          <div class="canvas-stage">
+            <div id="canvas-viewport" class="canvas-viewport" tabindex="0">
+                <div id="canvas-pan" class="canvas-pan">
+                <div id="canvas-world" class="canvas-world">
+                  <div id="group-layer" class="group-layer"></div>
+                  <svg id="edge-layer" class="edge-layer" data-i18n-aria="taskflow.aria.edgeLayer" aria-label="任务流程连接线"></svg>
+                  <div id="card-layer" class="card-layer"></div>
+                  <div id="group-handle-layer" class="group-handle-layer"></div>
+                  <div id="selection-marquee" class="selection-marquee" hidden></div>
+                  <div id="placement-preview" class="placement-preview" hidden>
+                    <span data-i18n="common.newTask">新任务</span>
+                  </div>
+                </div>
+              </div>
+              <div id="empty-state" class="empty-state" hidden>
+                <p data-i18n="taskflow.emptyState">双击空白处新建卡片</p>
+              </div>
+              <div id="placement-hint" class="placement-hint" data-i18n="taskflow.placementHint" hidden>左键放置 · 右键或 Esc 取消</div>
+              <div class="viewport-controls">
+                <button id="zoom-out" data-i18n-title="taskflow.zoomOut" title="缩小">−</button>
+                <button id="zoom-reset" data-i18n-title="taskflow.zoomReset" title="恢复 100%"><span id="zoom-label">100%</span></button>
+                <button id="zoom-in" data-i18n-title="taskflow.zoomIn" title="放大">＋</button>
+                <button id="fit-view" data-i18n-title="taskflow.fitView" title="适应全部卡片">⌗</button>
+              </div>
+            </div>
+          </div>
+
+          <aside id="n-panel" class="n-panel" hidden>
+            <div class="n-panel__search">
+              <input id="n-panel-search" type="search" data-i18n-placeholder="taskflow.searchPlaceholder" placeholder="查找任务" autocomplete="off" />
+              <div id="n-panel-search-results" class="n-panel__search-results" hidden></div>
+            </div>
+            <div class="n-panel__group">
+              <button id="undo" class="n-panel__btn" data-i18n-title="taskflow.undoTitle" title="撤销（Ctrl+Z）"><span data-i18n="taskflow.undo">↶ 撤销</span></button>
+              <button id="redo" class="n-panel__btn" data-i18n-title="taskflow.redoTitle" title="重做（Ctrl+Y）"><span data-i18n="taskflow.redo">↷ 重做</span></button>
+              <button id="archive-project" class="n-panel__btn" data-i18n-title="taskflow.archiveCurrentItem" title="归档当前大任务"><span data-i18n="taskflow.archive">▣ 归档</span></button>
+            </div>
+          </aside>
+        </section>
+      </section>
+    </main>
+    <div id="toast" class="toast" hidden></div>
+    <div id="archive-dialog" class="archive-dialog" hidden>
+      <section class="archive-dialog__box" role="dialog" aria-modal="true" aria-labelledby="archive-dialog-title">
+        <header class="archive-dialog__header">
+          <div>
+            <h2 id="archive-dialog-title" data-i18n="taskflow.archiveBox">归档箱</h2>
+          </div>
+          <button id="archive-dialog-close" class="archive-dialog__close" data-i18n-aria="taskflow.aria.closeArchive" aria-label="关闭归档箱">×</button>
+        </header>
+        <div class="archive-list-scroll">
+          <div id="archive-list" class="archive-list"></div>
+        </div>
+      </section>
+    </div>
+    <div id="app-dialog" class="app-dialog" hidden>
+      <div class="app-dialog__box">
+        <div class="app-dialog__title" id="app-dialog-title"></div>
+        <input id="app-dialog-input" class="app-dialog__input" type="text" />
+        <label id="app-dialog-dont-show" class="app-dialog__dont-show" hidden>
+          <input type="checkbox" id="app-dialog-dont-show-check" />
+          <span data-i18n="taskflow.dontShowAgain">不再提示</span>
+        </label>
+        <div class="app-dialog__actions">
+          <button id="app-dialog-cancel" class="app-dialog__btn">取消</button>
+          <button id="app-dialog-ok" class="app-dialog__btn app-dialog__btn--primary">确定</button>
+        </div>
+      </div>
+    </div>
+    <script type="module" src="./taskflow/main.ts"></script>
+  </body>
+</html>

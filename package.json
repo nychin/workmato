@@ -1,0 +1,66 @@
+{
+  "name": "tomato-clock",
+  "version": "1.3.0",
+  "description": "像素风格工作番茄 + 任务流程管理器",
+  "main": "dist/main/index.js",
+  "scripts": {
+    "build:main": "tsc -p tsconfig.main.json",
+    "build:renderer": "vite build",
+    "sync:guide": "node scripts/sync-taskflow-guide.cjs",
+    "test:taskflow": "npm run build:main && node --test tests/*.test.cjs",
+    "dev": "npm run build:main && concurrently -k \"vite\" \"tsc -p tsconfig.main.json --watch\" \"wait-on http://localhost:5173 && set APP_DEV=1&& electron .\"",
+    "dev:hot": "npm run build:main && concurrently -k \"vite\" \"tsc -p tsconfig.main.json --watch\" \"wait-on http://localhost:5173 && set APP_DEV=1&& electron .\"",
+    "build": "npm run build:main && npm run build:renderer",
+    "pack": "npm run build && electron-builder --win nsis",
+    "pack:dir": "npm run build && electron-builder --win dir"
+  },
+  "build": {
+    "appId": "com.tomato.clock",
+    "productName": "工作番茄",
+    "directories": {
+      "output": "release"
+    },
+    "files": [
+      "dist/**/*",
+      "package.json"
+    ],
+    "win": {
+      "target": [
+        "nsis"
+      ],
+      "icon": "static/icon/tomato.ico"
+    },
+    "nsis": {
+      "artifactName": "workmato-setup-${version}.${ext}",
+      "oneClick": false,
+      "allowToChangeInstallationDirectory": true,
+      "createDesktopShortcut": true,
+      "createStartMenuShortcut": true,
+      "shortcutName": "工作番茄",
+      "deleteAppDataOnUninstall": false,
+      "runAfterFinish": true,
+      "multiLanguageInstaller": true,
+      "installerLanguages": [
+        "zh_CN",
+        "en_US",
+        "ja_JP"
+      ]
+    }
+  },
+  "dependencies": {
+    "pixi.js": "6.5.10",
+    "sql.js": "^1.13.0"
+  },
+  "devDependencies": {
+    "@types/node": "^20.11.0",
+    "concurrently": "^8.2.2",
+    "electron": "39.8.10",
+    "electron-builder": "^26.15.3",
+    "typescript": "^5.3.3",
+    "vite": "^5.0.12",
+    "wait-on": "^7.2.0"
+  },
+  "allowScripts": {
+    "electron@39.8.10": true
+  }
+}

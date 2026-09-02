@@ -1,0 +1,264 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <title>动画后台面板</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      font-family: "Microsoft YaHei", "PingFang SC", sans-serif;
+      background: #1b1b26; color: #d5d5e0;
+      display: flex; height: 100vh; overflow: hidden;
+      user-select: none;
+    }
+
+    /* ── 左侧栏 ── */
+    #sidebar {
+      width: 210px; background: #22222f; flex-shrink: 0;
+      display: flex; flex-direction: column;
+      border-right: 1px solid #2a2a3a;
+    }
+    #sidebar-header {
+      padding: 14px 14px 10px;
+      display: flex; align-items: center; justify-content: space-between;
+    }
+    #sidebar-header span {
+      font-size: 13px; font-weight: 600; color: #8888a0;
+      letter-spacing: 0.5px;
+    }
+    #anim-list {
+      flex: 1; overflow-y: auto; padding: 0 8px 8px;
+    }
+    #anim-list::-webkit-scrollbar { width: 4px; }
+    #anim-list::-webkit-scrollbar-thumb { background: #3a3a4e; border-radius: 2px; }
+
+    .cat-label {
+      font-size: 11px; color: #555570; padding: 10px 8px 4px;
+      letter-spacing: 1px;
+    }
+    .anim-item {
+      display: flex; align-items: center; gap: 8px;
+      padding: 7px 10px; margin: 1px 0; border-radius: 6px;
+      cursor: pointer; font-size: 13px; color: #b0b0c8;
+      transition: background 0.12s, color 0.12s;
+    }
+    .anim-item:hover { background: #2a2a3e; color: #d5d5e0; }
+    .anim-item.active { background: #2b3a5e; color: #6cb4ff; }
+    .anim-item .dot {
+      width: 6px; height: 6px; border-radius: 50%;
+      background: #3a3a50; flex-shrink: 0;
+      transition: background 0.12s;
+    }
+    .anim-item.active .dot { background: #6cb4ff; }
+
+    /* ── 右侧主区 ── */
+    #main {
+      flex: 1; display: flex; flex-direction: column;
+      background: #1b1b26;
+    }
+    #title-bar {
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 14px 18px 10px;
+      border-bottom: 1px solid #2a2a3a;
+    }
+    #title-bar h2 { font-size: 15px; font-weight: 600; color: #d5d5e0; }
+    #close-btn {
+      width: 28px; height: 28px; border-radius: 6px;
+      background: none; border: none; color: #666680;
+      font-size: 14px; cursor: pointer;
+      display: flex; align-items: center; justify-content: center;
+      transition: background 0.12s, color 0.12s;
+    }
+    #close-btn:hover { background: #3a3a4e; color: #d5d5e0; }
+
+    #content {
+      flex: 1; overflow-y: auto; padding: 16px 18px;
+    }
+    #content::-webkit-scrollbar { width: 4px; }
+    #content::-webkit-scrollbar-thumb { background: #3a3a4e; border-radius: 2px; }
+
+    #empty {
+      display: flex; align-items: center; justify-content: center;
+      height: 100%; color: #444460; font-size: 14px;
+    }
+
+    /* ── 参数行 ── */
+    .param-row {
+      display: flex; align-items: center; gap: 12px;
+      margin-bottom: 14px;
+    }
+    .param-row label {
+      width: 80px; font-size: 12px; color: #7777a0; flex-shrink: 0;
+      text-align: right;
+    }
+    .param-row input[type=range] {
+      flex: 1; height: 4px; -webkit-appearance: none;
+      background: #2a2a3e; border-radius: 2px; outline: none;
+    }
+    .param-row input[type=range]::-webkit-slider-thumb {
+      -webkit-appearance: none; width: 14px; height: 14px;
+      border-radius: 50%; background: #6cb4ff; cursor: pointer;
+      transition: transform 0.1s;
+    }
+    .param-row input[type=range]::-webkit-slider-thumb:hover { transform: scale(1.2); }
+    .param-row .val {
+      width: 64px; text-align: left; font-size: 12px;
+      color: #6cb4ff; font-variant-numeric: tabular-nums;
+      flex-shrink: 0;
+    }
+
+    /* ── 底部按钮区 ── */
+    #bottom-bar {
+      display: flex; justify-content: flex-end; gap: 10px;
+      padding: 12px 18px; border-top: 1px solid #2a2a3a;
+    }
+    .btn {
+      padding: 7px 18px; border-radius: 6px; font-size: 13px;
+      cursor: pointer; border: 1px solid transparent;
+      transition: all 0.15s;
+    }
+    .btn-primary {
+      background: #2b3a5e; color: #6cb4ff; border-color: #3a4a70;
+    }
+    .btn-primary:hover { background: #3a4a70; color: #8cc8ff; }
+    .btn-ghost {
+      background: none; color: #666680; border-color: #2a2a3a;
+    }
+    .btn-ghost:hover { background: #2a2a3e; color: #d5d5e0; }
+  </style>
+</head>
+<body>
+  <div id="sidebar">
+    <div id="sidebar-header">
+      <span>动画列表</span>
+    </div>
+    <div id="anim-list"></div>
+  </div>
+  <div id="main">
+    <div id="title-bar">
+      <h2 id="anim-title">动画后台面板</h2>
+      <button id="close-btn" title="关闭">✕</button>
+    </div>
+    <div id="content">
+      <div id="empty">← 选择左侧动画</div>
+    </div>
+    <div id="bottom-bar" style="display:none">
+      <button class="btn btn-ghost" id="reset-btn">重置</button>
+      <button class="btn btn-primary" id="preview-btn">▶ 预览</button>
+    </div>
+  </div>
+
+  <script>
+  const MANIFEST = [
+    { id:'idle_to_focus', name:'闲置 → 专注', cat:'过渡动画', params:[
+      { key:'bounceDuration', label:'弹动时长', min:100, max:2000, step:10, def:360, unit:'ms' },
+      { key:'crossfadeDuration', label:'表情切换', min:10, max:500, step:5, def:60, unit:'ms' },
+    ]},
+    { id:'focus_to_prolongation', name:'专注 → 延时', cat:'过渡动画', params:[
+      { key:'sunFadeDuration', label:'太阳变色', min:500, max:6000, step:100, def:3000, unit:'ms' },
+      { key:'cloudDelay', label:'云朵延迟', min:0, max:3000, step:100, def:1000, unit:'ms' },
+    ]},
+    { id:'prolongation_to_waitingRest', name:'延时 → 休息', cat:'过渡动画', params:[
+      { key:'growDuration', label:'放大时长', min:100, max:1000, step:50, def:300, unit:'ms' },
+      { key:'shrinkDuration', label:'缩小时长', min:100, max:1000, step:50, def:200, unit:'ms' },
+      { key:'nightFadeDuration', label:'夜空淡入', min:500, max:4000, step:100, def:1500, unit:'ms' },
+    ]},
+    { id:'rest_to_idle', name:'休息 → 闲置', cat:'过渡动画', params:[
+      { key:'growDuration', label:'放大时长', min:100, max:1000, step:50, def:300, unit:'ms' },
+      { key:'shrinkDuration', label:'缩小时长', min:100, max:500, step:50, def:200, unit:'ms' },
+      { key:'recoverDuration', label:'恢复时长', min:50, max:500, step:10, def:100, unit:'ms' },
+      { key:'nightFadeDuration', label:'夜空淡出', min:500, max:4000, step:100, def:1500, unit:'ms' },
+    ]},
+    { id:'enter_rage', name:'进入鞭策', cat:'过渡动画', params:[
+      { key:'bounceDuration', label:'弹动时长', min:100, max:2000, step:10, def:360, unit:'ms' },
+    ]},
+    { id:'pulse', name:'太阳光芒脉冲', cat:'呼吸动画', params:[
+      { key:'amplitude', label:'幅度', min:5, max:50, step:1, def:15, unit:'%' },
+      { key:'duration', label:'单次时长', min:200, max:2000, step:50, def:500, unit:'ms' },
+      { key:'gapDuration', label:'循环间隔', min:1000, max:8000, step:200, def:4000, unit:'ms' },
+    ]},
+    { id:'sync', name:'延时同步呼吸', cat:'呼吸动画', params:[
+      { key:'amplitude', label:'幅度', min:5, max:30, step:1, def:10, unit:'%' },
+      { key:'period', label:'周期', min:2000, max:12000, step:200, def:6000, unit:'ms' },
+    ]},
+    { id:'glow', name:'夜晚光晕', cat:'呼吸动画', params:[
+      { key:'period', label:'周期', min:2000, max:12000, step:200, def:6000, unit:'ms' },
+      { key:'offset', label:'相位差', min:1000, max:6000, step:200, def:4000, unit:'ms' },
+    ]},
+    { id:'bubble', name:'鼻涕泡', cat:'呼吸动画', params:[
+      { key:'period', label:'周期', min:3000, max:14000, step:200, def:7000, unit:'ms' },
+    ]},
+    { id:'celebration', name:'庆祝动画', cat:'庆祝', params:[
+      { key:'duration', label:'总时长', min:3000, max:10000, step:200, def:6000, unit:'ms' },
+    ]},
+  ];
+
+  let selectedId = null;
+  let paramValues = {};
+
+  // ── 构建左侧列表 ──
+  const listEl = document.getElementById('anim-list');
+  const cats = [...new Set(MANIFEST.map(a => a.cat))];
+  for (const cat of cats) {
+    const lb = document.createElement('div');
+    lb.className = 'cat-label';
+    lb.textContent = cat;
+    listEl.appendChild(lb);
+    for (const a of MANIFEST.filter(x => x.cat === cat)) {
+      const div = document.createElement('div');
+      div.className = 'anim-item';
+      div.dataset.id = a.id;
+      div.innerHTML = '<span class="dot"></span>' + a.name;
+      div.onclick = () => selectAnim(a.id);
+      listEl.appendChild(div);
+    }
+  }
+
+  function selectAnim(id) {
+    selectedId = id;
+    document.querySelectorAll('.anim-item').forEach(el =>
+      el.classList.toggle('active', el.dataset.id === id));
+    const anim = MANIFEST.find(a => a.id === id);
+    document.getElementById('anim-title').textContent = anim.name;
+    paramValues = {};
+    anim.params.forEach(p => { paramValues[p.key] = p.def; });
+    buildParams(anim);
+    document.getElementById('bottom-bar').style.display = 'flex';
+  }
+
+  function buildParams(anim) {
+    const c = document.getElementById('content');
+    c.innerHTML = '';
+    for (const p of anim.params) {
+      const row = document.createElement('div');
+      row.className = 'param-row';
+      row.innerHTML =
+        '<label>' + p.label + '</label>' +
+        '<input type="range" min="' + p.min + '" max="' + p.max + '" step="' + p.step + '" value="' + paramValues[p.key] + '">' +
+        '<span class="val">' + paramValues[p.key] + (p.unit || '') + '</span>';
+      const slider = row.querySelector('input');
+      const val = row.querySelector('.val');
+      slider.oninput = () => {
+        paramValues[p.key] = Number(slider.value);
+        val.textContent = slider.value + (p.unit || '');
+      };
+      c.appendChild(row);
+    }
+  }
+
+  document.getElementById('preview-btn').onclick = () => {
+    if (!selectedId || !window.tomatoAPI) return;
+    window.tomatoAPI.animLabPreview({ id: selectedId, params: { ...paramValues } });
+  };
+
+  document.getElementById('reset-btn').onclick = () => {
+    if (!selectedId) return;
+    selectAnim(selectedId);
+  };
+
+  document.getElementById('close-btn').onclick = () => {
+    if (window.tomatoAPI) window.tomatoAPI.closeAnimLab();
+  };
+  </script>
+</body>
+</html>

@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>工作番茄</title>
+    <style>
+      @font-face {
+        font-family: 'ResourceHanRoundedCN-Bold';
+        src: url('./ResourceHanRoundedCN-Bold.ttf') format('truetype');
+        font-display: swap;
+      }
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
+      html,
+      body {
+        width: 491px;
+        height: 407px;
+        overflow: hidden;
+        background: transparent;
+        user-select: none;
+        -webkit-user-select: none;
+      }
+      #pixi-container {
+        width: 491px;
+        height: 407px;
+        position: relative;
+      }
+      #pixi-container canvas {
+        image-rendering: pixelated;
+      }
+      html.panel-scaled,
+      html.panel-scaled body {
+        width: var(--panel-display-width);
+        height: var(--panel-display-height);
+      }
+      html.panel-scaled #pixi-container {
+        transform: scale(var(--panel-display-scale));
+        transform-origin: top left;
+      }
+      #debug-msg {
+        position: absolute;
+        top: 10px;
+        left: 10px;
+        color: white;
+        font-size: 14px;
+        font-family: monospace;
+        background: rgba(0,0,0,0.7);
+        padding: 4px 8px;
+        border-radius: 4px;
+        z-index: 999;
+        pointer-events: none;
+      }
+    </style>
+  </head>
+  <body>
+    <div id="pixi-container"></div>
+    <script type="module" src="./main.ts"></script>
+  </body>
+</html>

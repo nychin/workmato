@@ -1,0 +1,41 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>工作番茄设置</title>
+    <link rel="stylesheet" href="./settings.css" />
+  </head>
+  <body>
+    <main class="settings-app">
+      <header class="settings-titlebar">
+        <span id="settings-version" class="settings-version" data-i18n-aria="settings.aria.appVersion" aria-label="应用版本"></span>
+        <div class="settings-window-actions">
+          <button id="settings-close" class="settings-window-button" data-i18n-aria="settings.aria.closeSettings" aria-label="关闭设置">×</button>
+        </div>
+      </header>
+      <section class="settings-shell">
+        <nav id="settings-nav" class="settings-nav" data-i18n-aria="settings.aria.navCategories" aria-label="设置分类">
+          <button class="settings-nav__item is-active" data-panel="statistics" data-i18n="settings.nav.statistics">统计</button>
+          <button class="settings-nav__item" data-panel="timer" data-i18n="settings.nav.timer">计时</button>
+          <button class="settings-nav__item" data-panel="system" data-i18n="settings.nav.system">系统</button>
+          <button class="settings-nav__item" data-panel="shortcuts" data-i18n="settings.nav.shortcuts">快捷键</button>
+          <button class="settings-nav__item" data-panel="other" data-i18n="settings.nav.other">其它</button>
+        </nav>
+        <section class="settings-content">
+          <div id="settings-panel" class="settings-panel"></div>
+          <div id="settings-scrollbar" class="settings-scrollbar" aria-hidden="true" hidden>
+            <div id="settings-scrollbar-thumb" class="settings-scrollbar__thumb"></div>
+          </div>
+          <p id="settings-status" class="settings-status" aria-live="polite"></p>
+        </section>
+      </section>
+    </main>
+    <div id="support-modal" class="support-modal" role="dialog" aria-modal="true" data-i18n-aria="settings.aria.wechatQr" aria-label="微信赞赏码" hidden>
+      <section class="support-modal__content">
+        <img src="./money-receiving-qr-code.png" data-i18n-alt="settings.aria.wechatQr" alt="微信赞赏码" />
+      </section>
+    </div>
+    <script type="module" src="./settings.ts"></script>
+  </body>
+</html>
