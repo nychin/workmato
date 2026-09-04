@@ -109,11 +109,11 @@ npm run pack:dir     # 打包免安装目录版（release/win-unpacked）
 
 ## 支持开发
 
-如果工作番茄对你有帮助，可以请开发者喝杯咖啡 ☕（国际用户通过 Ko-fi / PayPal）：
+如果工作番茄对你有帮助，可以请开发者喝杯咖啡 ☕
 
-[![ko-fi](https://ko-fi.com/img/githubbutton_sm.svg)](https://ko-fi.com/nychin260828)
+**微信赞赏**（应用内「设置 → 关于」也可查看）：
 
-国内用户也可以在应用内「设置 → 关于」中扫码赞赏。
+![](static/money-receiving-qr-code.png)
 
 ## 许可证
 
