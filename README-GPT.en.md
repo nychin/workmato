@@ -107,6 +107,14 @@ Dev mode uses a separate data directory (`%TEMP%\tomato-clock-dev`), isolated fr
 
 **Windows**: tomato main panel, task flow manager, settings window and the animation lab — each runs on its own and opens on demand.
 
+## Support
+
+If Working Tomato helps you, consider buying the developer a coffee ☕ via Ko-fi / PayPal:
+
+[![ko-fi](https://ko-fi.com/img/githubbutton_sm.svg)](https://ko-fi.com/nychin260828)
+
+Users in mainland China can also tip via the QR code in the app's **Settings → About** page.
+
 ## License
 
 Released under [PolyForm Noncommercial 1.0.0](LICENSE).
