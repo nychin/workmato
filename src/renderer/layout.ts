@@ -320,7 +320,8 @@ export class LayoutRenderer {
     // 正确做法：resolution = 1，backing 纹理 = fontSize 像素/字，1:1 上屏；
     // 只用 BINARY_FRAG 对字体抗锯齿边缘做二值化，这样每个 backing 像素 = 1 屏像素 = 1 UI 像素块。
     // fontSize 直接决定屏像素字高，改字号就真的变大。
-    const title = new PIXI.Text(this.pinnedTaskTitle.slice(0, 5), {
+    // 告示牌纸片可用宽度约 100px；字号缩小后可容纳约 7 个字符。
+    const title = new PIXI.Text(this.pinnedTaskTitle.slice(0, 7), {
       fontFamily: 'ResourceHanRoundedCN-Bold, sans-serif',
       fontSize: 16,
       fill: 0x4a3426,
@@ -329,7 +330,8 @@ export class LayoutRenderer {
     });
     // 左对齐，最左端从第 135 像素开始；垂直居中于告示牌纸片
     title.anchor.set(0, 0.5);
-    title.position.set(135, 315);
+    const titleX = this.pinnedTaskTitle.length >= 5 ? 131 : 135;
+    title.position.set(titleX, 315);
     title.roundPixels = true;
     title.texture.baseTexture.scaleMode = PIXI.SCALE_MODES.NEAREST;
     title.filters = [new PIXI.Filter(PIXELATE_VERT, BINARY_FRAG)];

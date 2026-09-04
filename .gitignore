@@ -7,3 +7,6 @@ release/
 *.7z
 .DS_Store
 *.log
+.env*
+Thumbs.db
+desktop.ini

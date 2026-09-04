@@ -22,6 +22,8 @@ export interface TaskProject {
   viewport?: { x: number; y: number; zoom: number };
   /** 任务栏分组；置顶时暂时显示在置顶区，取消置顶后回到该分组。 */
   sidebarGroupId?: string | null;
+  /** 左侧任务栏卡片的色彩标签内描边。 */
+  colorTag?: string;
 }
 
 export interface TaskProjectGroup {
@@ -59,6 +61,10 @@ export interface TaskCard {
   noteWidth?: number;
   /** 说明卡手动调整后的高度；未设置时按内容使用默认自动高度。 */
   noteHeight?: number;
+  /** 便签背景颜色；未设置时使用默认淡黄色。 */
+  noteColor?: string;
+  /** 任务卡片右键设置的内描边色彩标签。 */
+  colorTag?: string;
   /** 所属打组的 id（Ctrl+G 创建）；同一组的所有卡片共享一个外围彩色边界框 */
   groupId?: string | null;
 }

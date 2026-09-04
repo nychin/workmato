@@ -20,6 +20,8 @@ const GROUP_OUTLINE_COLORS = [
   { labelKey: 'taskflow.color.purplePink', value: '#DB82DF' },
 ] as const;
 const LEGACY_GROUP_OUTLINE_COLORS = new Set(['#E880F1', '#8FC9FF', '#65DD6C', '#FF858E']);
+const NOTE_COLORS = ['#FFF1B6', '#FBBFC5', '#BCDEFD', '#AEF8B4', '#E3DACB'] as const;
+const PROJECT_TAG_COLORS = ['#FFD0D2', '#FBEDB2', '#B9F1BE', '#C4E1FC'] as const;
 
 const elements = {
   sidebar: document.querySelector<HTMLElement>('#project-sidebar')!,
@@ -159,6 +161,8 @@ let marqueeState: { start: { x: number; y: number }; current: { x: number; y: nu
 let nPanelOpen = true;
 /** 右键菜单当前目标项目 */
 let contextProjectId: string | null = null;
+/** 当前鼠标悬停的任务栏任务，用于 F2 快速重命名。 */
+let hoveredProjectId: string | null = null;
 /** 右键菜单当前目标卡片 */
 let contextCardId: string | null = null;
 /** 项目列表拖动排序状态 */
@@ -600,8 +604,8 @@ function renderProjects(): void {
     renderedProjectProgressValues.set(project.id, progress);
     const hasPin = cards.some((card) => card.id === data.pinnedCardId);
     return `
-      <div class="project-item ${project.id === data.activeProjectId ? 'is-active' : ''} ${project.pinnedAt ? 'is-pinned' : ''}"
-        data-project-id="${project.id}" data-project-order="${project.pinnedAt ? 'pinned' : 'rest'}">
+      <div class="project-item ${project.id === data.activeProjectId ? 'is-active' : ''} ${project.pinnedAt ? 'is-pinned' : ''} ${project.colorTag ? 'has-color-tag' : ''}"
+        data-project-id="${project.id}" data-project-order="${project.pinnedAt ? 'pinned' : 'rest'}" style="--project-tag:${project.colorTag ?? 'transparent'}">
         <span class="project-item__progress-fill" data-project-progress-fill="${project.id}" style="width:${previousProgress}%"></span>
         <span class="project-item__handle" data-sort-handle="${project.id}" draggable="false" title="${t('taskflow.sidebar.dragToSort')}"></span>
         <span class="project-item__title">${hasPin ? '<span class="project-item__pin"></span>' : ''}${escapeHTML(project.title)}</span>
@@ -871,7 +875,8 @@ function renderNoteCard(card: TaskCard, position: { x: number; y: number; zIndex
   const editingBody = editingCardId === card.id && editingField === 'body';
   const selected = selectedCardIds.has(card.id);
   const drawingMode = card.noteMode === 'draw';
-  const width = position.attached ? noteWidth(card) : CARD_WIDTH;
+  // 独立便签与附属说明框共用宽度记忆和右缘拖动逻辑。
+  const width = noteWidth(card);
   const height = noteHeight(card, width, position.attached ? 154 : CARD_WIDTH);
   const fixedHeight = position.attached || drawingMode || card.noteHeight !== undefined ? height : null;
   const title = card.title || t('taskflow.note.fallbackTitle');
@@ -882,7 +887,7 @@ function renderNoteCard(card: TaskCard, position: { x: number; y: number; zIndex
       </div>`;
   return `
     <div class="task-note ${position.attached ? '' : 'task-note--standalone'} ${card.noteHeight !== undefined ? 'is-height-adjusted' : ''} ${drawingMode ? 'is-drawing' : ''} ${isCollapsed ? 'is-collapsed' : ''} ${selected ? 'is-selected' : ''} ${editingTitle || editingBody ? 'is-editing' : ''} ${editingBody ? 'is-body-editing' : ''}"
-      data-card-id="${card.id}"${position.attached ? ` data-note-parent="${card.parentId}"` : ''} style="z-index:${position.zIndex};left:${position.x}px;top:${position.y}px;width:${width}px${fixedHeight ? `;height:${fixedHeight}px` : ''}">
+      data-card-id="${card.id}"${position.attached ? ` data-note-parent="${card.parentId}"` : ''} style="--note-bg:${card.noteColor ?? NOTE_COLORS[0]};z-index:${position.zIndex};left:${position.x}px;top:${position.y}px;width:${width}px${fixedHeight ? `;height:${fixedHeight}px` : ''}">
       <div class="task-note__head${editingTitle ? ' is-title-editing' : ''}" data-note-head="1"${position.attached ? '' : ' data-drag-handle="true"'}>
         ${position.attached ? `<button class="task-note__toggle" data-note-toggle="collapse" title="${isCollapsed ? t('taskflow.note.expand') : t('taskflow.note.collapse')}">${isCollapsed
           ? '<svg class="note-chevron note-chevron--right" viewBox="0 0 12 12" aria-hidden="true"><path d="M2.5 1.5 L10.5 6 L2.5 10.5 Z" /></svg>'
@@ -893,7 +898,7 @@ function renderNoteCard(card: TaskCard, position: { x: number; y: number; zIndex
           : '<svg class="note-mode-icon note-mode-icon--text" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 5h14" /><path d="M12 5v14" /></svg>'}</button>
         <button class="task-note__remove" data-note-remove title="${t('taskflow.note.delete')}">×</button>
       </div>
-      ${isCollapsed ? '' : `${body}${position.attached ? `<div class="task-note__resize" data-note-resize title="${t('taskflow.note.resizeWidth')}"></div>` : ''}<div class="task-note__height-resize" data-note-height-resize title="${t('taskflow.note.resizeHeight')}"></div>`}
+      ${isCollapsed ? '' : `${body}<div class="task-note__resize" data-note-resize title="${t('taskflow.note.resizeWidth')}"></div><div class="task-note__height-resize" data-note-height-resize title="${t('taskflow.note.resizeHeight')}"></div>`}
     </div>`;
 }
 
@@ -1150,8 +1155,8 @@ function renderCards(): void {
       : undefined;
 
     return `
-      <article class="task-card ${selected ? 'is-selected' : ''} ${quickConnectSource ? 'is-connect-source' : ''} ${isDeselecting ? 'is-deselecting' : ''} ${pinned ? 'is-pinned' : ''} ${card.completed ? 'is-completed' : ''} ${editingTitle || editingBody ? 'is-editing' : ''}"
-        data-card-id="${card.id}" style="z-index:${cardGroupStackOrder.get(card.id) ?? 0};left:${card.x}px;top:${card.y}px">
+      <article class="task-card ${selected ? 'is-selected' : ''} ${quickConnectSource ? 'is-connect-source' : ''} ${isDeselecting ? 'is-deselecting' : ''} ${pinned ? 'is-pinned' : ''} ${card.completed ? 'is-completed' : ''} ${card.colorTag ? 'has-color-tag' : ''} ${editingTitle || editingBody ? 'is-editing' : ''}"
+        data-card-id="${card.id}" style="--card-tag:${card.colorTag ?? 'transparent'};z-index:${cardGroupStackOrder.get(card.id) ?? 0};left:${card.x}px;top:${card.y}px">
         <svg class="task-card__tabs-outline-bg" viewBox="0 0 118 53" preserveAspectRatio="none" overflow="visible" aria-hidden="true"><path d="M 13 0 H 89 C 108 0 103 34 118 34 V 53 H 0 V 13 Q 0 0 13 0 Z" /></svg>
         <header class="task-card__header${editingTitle ? ' is-title-editing' : ''}" data-drag-handle="true"${titleEditLayout ? ` style="height:${titleEditLayout.headerHeight}px;--title-edit-row-height:${titleEditLayout.titleRowHeight}px"` : ''}>
           <div class="task-card__tabs">
@@ -1684,6 +1689,33 @@ function setCanvasGroupOutlineColor(groupId: string, color: string): void {
   const group = data.groups.find((item) => item.id === groupId);
   if (!group) return;
   mutate(() => { group.color = color; }, t('taskflow.toast.groupColorUpdated'));
+}
+
+function setNoteColor(cardId: string, color: string): void {
+  const card = data.cards.find((item) => item.id === cardId);
+  if (!card || !isNoteCard(card)) return;
+  mutate(() => { card.noteColor = color; card.updatedAt = now(); }, '便签颜色已更新');
+}
+
+function showNoteContextMenu(clientX: number, clientY: number, cardId: string): void {
+  openContextMenu(clientX, clientY, NOTE_COLORS.map((color) => ({
+    label: color,
+    color,
+    action: () => setNoteColor(cardId, color),
+  })));
+}
+
+function setProjectColorTag(projectId: string, color: string | null): void {
+  const project = data.projects.find((item) => item.id === projectId);
+  if (!project) return;
+  mutate(() => { project.colorTag = color ?? undefined; project.updatedAt = now(); }, '色彩标签已更新');
+}
+
+function showProjectColorTagMenu(clientX: number, clientY: number, projectId: string): void {
+  openContextMenu(clientX, clientY, [
+    ...PROJECT_TAG_COLORS.map((color) => ({ label: color, color, action: () => setProjectColorTag(projectId, color) })),
+    { label: '清除标签', action: () => setProjectColorTag(projectId, null) },
+  ]);
 }
 
 function groupAtClientPoint(clientX: number, clientY: number, excludedGroupId?: string | null): string | null {
@@ -2584,6 +2616,13 @@ function wireProjectList(): void {
     const item = target.closest<HTMLElement>('[data-project-id]');
     if (item && item.dataset.projectId !== data.activeProjectId) setActiveProject(item.dataset.projectId!);
   });
+  elements.projectList.addEventListener('pointerover', (event) => {
+    const item = (event.target as HTMLElement).closest<HTMLElement>('[data-project-id]');
+    hoveredProjectId = item?.dataset.projectId ?? null;
+  });
+  elements.projectList.addEventListener('pointerleave', () => {
+    hoveredProjectId = null;
+  });
   elements.projectList.addEventListener('dblclick', (event) => {
     const target = event.target as HTMLElement;
     if (target.closest('[data-sort-handle]')) return;
@@ -2801,6 +2840,8 @@ function showProjectContextMenu(clientX: number, clientY: number, projectId: str
     .filter((group) => group.id !== project.sidebarGroupId)
     .map((group) => ({ label: t('taskflow.menu.moveToGroup', { title: group.title }), action: () => moveProjectToGroup(projectId, group.id) }));
   const items = [
+    ...PROJECT_TAG_COLORS.map((color) => ({ label: color, color, action: () => setProjectColorTag(projectId, color) })),
+    { label: '清除标签', action: () => setProjectColorTag(projectId, null) },
     { label: project.pinnedAt ? t('taskflow.menu.unpin') : t('taskflow.menu.pin'), action: () => toggleProjectPin(projectId) },
     ...groupItems,
     ...(project.sidebarGroupId ? [{ label: t('taskflow.menu.removeFromGroup'), action: () => moveProjectToGroup(projectId, null) }] : []),
@@ -3189,9 +3230,11 @@ window.addEventListener('keyup', (event) => {
       if (!exists) mutate(() => data.edges.push(createEdge(data.activeProjectId!, edgeSourceId, edgeTargetId)), t('taskflow.toast.flowLinkCreated'));
       else renderEdges();
     } else if (sourceCard && data.activeProjectId) {
-      // 空白处松开：右端点创建后续卡片，左端点创建前置卡片。
+      // 空白处松开：让新卡片对应的连接点对齐鼠标释放位置。
       const point = clientToWorld(event.clientX, event.clientY);
-      const next = createCard(data.activeProjectId, point.x - CARD_WIDTH / 2, point.y - CARD_HEADER_HEIGHT / 2, t('common.newTask'));
+      const handleOffsetY = 23.1 + 37.8 / 2;
+      const nextX = sourceSide === 'out' ? point.x : point.x - CARD_WIDTH;
+      const next = createCard(data.activeProjectId, nextX, point.y - handleOffsetY, t('common.newTask'));
       mutate(() => {
         data.cards.push(next);
         data.edges.push(sourceSide === 'out'
@@ -3401,9 +3444,9 @@ window.addEventListener('keyup', (event) => {
     const resizeHandle = target.closest<HTMLElement>('[data-note-resize]');
     if (resizeHandle && cardElement && event.button === 0) {
       const card = data.cards.find((c) => c.id === cardElement.dataset.cardId);
-      const parent = card ? data.cards.find((c) => c.id === card.parentId) : undefined;
-      if (card && parent) {
+      if (card) {
         event.preventDefault();
+        event.stopPropagation();
         noteResize = {
           cardId: card.id,
           axis: 'width',
@@ -3660,7 +3703,14 @@ window.addEventListener('keyup', (event) => {
   });
 
   elements.cardLayer.addEventListener('contextmenu', (event) => {
-    if ((event.target as HTMLElement).closest('[data-note-canvas]')) event.preventDefault();
+    const target = event.target as HTMLElement;
+    const cardElement = target.closest<HTMLElement>('[data-card-id]');
+    const card = cardElement ? data.cards.find((item) => item.id === cardElement.dataset.cardId) : undefined;
+    if (card && isNoteCard(card)) {
+      event.preventDefault();
+      event.stopPropagation();
+      showNoteContextMenu(event.clientX, event.clientY, card.id);
+    } else if (target.closest('[data-note-canvas]')) event.preventDefault();
   });
 
   elements.cardLayer.addEventListener('keydown', (event) => {
@@ -3822,6 +3872,15 @@ function wireKeyboard(): void {
       return;
     }
     const editing = (event.target as HTMLElement).matches('input,textarea');
+    // 鼠标悬停任务栏任务时按 F2，直接进入该任务的内联重命名。
+    if (event.key === 'F2' && !editing && !event.ctrlKey && !event.altKey && !event.shiftKey && !event.metaKey) {
+      const projectId = hoveredProjectId;
+      if (projectId && data.projects.some((project) => project.id === projectId && !project.archived)) {
+        event.preventDefault();
+        renameProject(projectId);
+        return;
+      }
+    }
     if (!editing && event.ctrlKey && !event.altKey && !event.shiftKey && /^[1-9]$/.test(event.key)) {
       const project = visibleSidebarProjects()[Number(event.key) - 1];
       if (project) {

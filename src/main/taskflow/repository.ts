@@ -7,7 +7,7 @@ import type { AppLanguage } from '../../shared/settings';
 import { getBundledGuideSeed } from './seed';
 
 const CURRENT_DATA_VERSION = 1 as const;
-const CURRENT_SCHEMA_VERSION = 4;
+const CURRENT_SCHEMA_VERSION = 7;
 
 type SqlValue = string | number | null;
 
@@ -169,7 +169,8 @@ export class TaskFlowRepository {
         viewport_x REAL,
         viewport_y REAL,
         viewport_zoom REAL,
-        sidebar_group_id TEXT
+        sidebar_group_id TEXT,
+        color_tag TEXT
       );
       CREATE TABLE IF NOT EXISTS project_groups (
         id TEXT PRIMARY KEY,
@@ -195,6 +196,8 @@ export class TaskFlowRepository {
         note_collapsed INTEGER,
         note_width REAL,
         note_height REAL,
+        note_color TEXT,
+        color_tag TEXT,
         group_id TEXT
       );
       CREATE TABLE IF NOT EXISTS edges (
@@ -264,6 +267,21 @@ export class TaskFlowRepository {
       if (!cardColumns.includes('note_height')) db.run('ALTER TABLE cards ADD COLUMN note_height REAL');
       return;
     }
+    if (version === 5) {
+      const cardColumns = rows(db, 'PRAGMA table_info(cards)').map((row) => asString(row.name));
+      if (!cardColumns.includes('note_color')) db.run('ALTER TABLE cards ADD COLUMN note_color TEXT');
+      return;
+    }
+    if (version === 6) {
+      const cardColumns = rows(db, 'PRAGMA table_info(cards)').map((row) => asString(row.name));
+      if (!cardColumns.includes('color_tag')) db.run('ALTER TABLE cards ADD COLUMN color_tag TEXT');
+      return;
+    }
+    if (version === 7) {
+      const projectColumns = rows(db, 'PRAGMA table_info(projects)').map((row) => asString(row.name));
+      if (!projectColumns.includes('color_tag')) db.run('ALTER TABLE projects ADD COLUMN color_tag TEXT');
+      return;
+    }
     throw new Error(`[taskflow] Missing migration for SQLite schema version ${version}.`);
   }
 
@@ -281,8 +299,8 @@ export class TaskFlowRepository {
         db.run(
           `INSERT INTO projects (
             id, title, archived, archived_at, created_at, updated_at, pinned_at, sort_order,
-            viewport_x, viewport_y, viewport_zoom, sidebar_group_id
-          ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+            viewport_x, viewport_y, viewport_zoom, sidebar_group_id, color_tag
+          ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
           [
             project.id,
             project.title,
@@ -296,6 +314,7 @@ export class TaskFlowRepository {
             nullable(project.viewport?.y),
             nullable(project.viewport?.zoom),
             nullable(project.sidebarGroupId),
+            nullable(project.colorTag),
           ],
         );
       }
@@ -311,8 +330,8 @@ export class TaskFlowRepository {
         db.run(
           `INSERT INTO cards (
             id, project_id, title, markdown, x, y, collapsed, completed, created_at, updated_at,
-            parent_id, card_type, note_mode, drawing, note_collapsed, note_width, note_height, group_id
-          ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+            parent_id, card_type, note_mode, drawing, note_collapsed, note_width, note_height, note_color, color_tag, group_id
+          ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
           [
             card.id,
             card.projectId,
@@ -331,6 +350,8 @@ export class TaskFlowRepository {
             card.noteCollapsed === undefined ? null : card.noteCollapsed ? 1 : 0,
             nullable(card.noteWidth),
             nullable(card.noteHeight),
+            nullable(card.noteColor),
+            nullable(card.colorTag),
             nullable(card.groupId),
           ],
         );
@@ -366,7 +387,7 @@ export class TaskFlowRepository {
     const projects: TaskProject[] = rows(
       db,
       `SELECT id, title, archived, archived_at, created_at, updated_at, pinned_at, sort_order,
-        viewport_x, viewport_y, viewport_zoom, sidebar_group_id FROM projects`,
+        viewport_x, viewport_y, viewport_zoom, sidebar_group_id, color_tag FROM projects`,
     ).map((row) => {
       const project: TaskProject = {
         id: asString(row.id),
@@ -382,6 +403,7 @@ export class TaskFlowRepository {
       const viewportY = asOptionalNumber(row.viewport_y);
       const viewportZoom = asOptionalNumber(row.viewport_zoom);
       const sidebarGroupId = asOptionalString(row.sidebar_group_id);
+      const colorTag = asOptionalString(row.color_tag);
       if (archivedAt !== null) project.archivedAt = archivedAt;
       if (pinnedAt !== null) project.pinnedAt = pinnedAt;
       if (sortOrder !== undefined) project.sortOrder = sortOrder;
@@ -389,6 +411,7 @@ export class TaskFlowRepository {
         project.viewport = { x: viewportX, y: viewportY, zoom: viewportZoom };
       }
       if (sidebarGroupId !== null) project.sidebarGroupId = sidebarGroupId;
+      if (colorTag !== null) project.colorTag = colorTag;
       return project;
     });
 
@@ -405,7 +428,7 @@ export class TaskFlowRepository {
     const cards: TaskCard[] = rows(
       db,
       `SELECT id, project_id, title, markdown, x, y, collapsed, completed, created_at, updated_at,
-        parent_id, card_type, note_mode, drawing, note_collapsed, note_width, note_height, group_id
+        parent_id, card_type, note_mode, drawing, note_collapsed, note_width, note_height, note_color, color_tag, group_id
        FROM cards`,
     ).map((row) => {
       const card: TaskCard = {
@@ -426,6 +449,8 @@ export class TaskFlowRepository {
       const drawing = asOptionalString(row.drawing);
       const noteWidth = asOptionalNumber(row.note_width);
       const noteHeight = asOptionalNumber(row.note_height);
+      const noteColor = asOptionalString(row.note_color);
+      const colorTag = asOptionalString(row.color_tag);
       const groupId = asOptionalString(row.group_id);
       if (parentId !== null) card.parentId = parentId;
       if (cardType === 'task' || cardType === 'note') card.cardType = cardType;
@@ -434,6 +459,8 @@ export class TaskFlowRepository {
       if (row.note_collapsed !== null) card.noteCollapsed = asBoolean(row.note_collapsed);
       if (noteWidth !== undefined) card.noteWidth = noteWidth;
       if (noteHeight !== undefined) card.noteHeight = noteHeight;
+      if (noteColor !== null) card.noteColor = noteColor;
+      if (colorTag !== null) card.colorTag = colorTag;
       if (groupId !== null) card.groupId = groupId;
       return card;
     });
@@ -515,19 +542,17 @@ export class TaskFlowRepository {
     const key = `${appVersion}@${language}`;
     if (state?.key === key) return data;
 
-    // 旧版本状态文件（仅记录 version，无 language/projectIds）：无法回溯哪个项目是内置引导。
-    // 若已存在标题匹配当前语言引导的项目，视为用户已持有的引导，记录其 id 且不再重复注入，
-    // 避免升级后出现两份“说明”。
+    // 旧版本状态文件（仅记录 version，无 language/projectIds）：通过标题识别旧说明项目，
+    // 将其纳入待替换列表，确保升级后能带上最新的内置说明内容。
+    let legacyGuideProjectId: string | null = null;
     if (state && !state.language) {
       const guideTitle = getBundledGuideSeed(language).projects[0]?.title;
       const existingGuide = data.projects.find((project) => !project.archived && project.title === guideTitle);
-      if (existingGuide) {
-        await this.writeBundledGuideState(appVersion, language, [existingGuide.id]);
-        return data;
-      }
+      legacyGuideProjectId = existingGuide?.id ?? null;
     }
 
     const previousProjectIds = new Set(state?.projectIds ?? []);
+    if (legacyGuideProjectId) previousProjectIds.add(legacyGuideProjectId);
     const withoutOldGuide: TaskFlowData = {
       ...data,
       projects: data.projects.filter((project) => !previousProjectIds.has(project.id)),

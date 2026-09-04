@@ -306,6 +306,7 @@ textarea:focus-visible {
 .project-item.is-drop-before::before { top: 2px; }
 .project-item.is-drop-after::after { bottom: 2px; }
 .project-item.is-active { --project-base: #fff; box-shadow: 0 4px 0 rgba(39, 53, 96, 0.1); }
+.project-item.has-color-tag { box-shadow: inset 0 0 0 5px var(--project-tag), 0 4px 0 rgba(39, 53, 96, 0.1); }
 .project-item.is-pinned { --project-base: #F2EEE7; }
 .project-item.is-pinned.is-active { --project-base: #fff; }
 .project-item__progress-fill {
@@ -695,6 +696,9 @@ textarea:focus-visible {
   box-shadow: var(--tf-shadow-card);
   pointer-events: none;
 }
+.task-card.has-color-tag::before {
+  box-shadow: inset 0 0 0 5px var(--card-tag), var(--tf-shadow-card);
+}
 /* 挂起态使用紧贴卡片轮廓的绿色描边，尺寸随卡片内容自动伸缩。 */
 .task-card.is-pinned::before { box-shadow: var(--tf-shadow-card); }
 .task-card.is-pinned::after {
@@ -1033,7 +1037,7 @@ textarea:focus-visible {
   /* 说明框去掉描边，背景调整为 E3DACB */
   border: 0;
   border-radius: 14px;
-  background: #E3DACB;
+  background: var(--note-bg, #FFF1B6);
   overflow: hidden;
   box-shadow: 0 4px 0 rgba(39, 53, 96, 0.08);
   cursor: default;
