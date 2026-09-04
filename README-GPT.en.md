@@ -1,7 +1,7 @@
 [中文](README.md) · [English](README-GPT.en.md)
 
 [![License: PolyForm Noncommercial](https://img.shields.io/badge/License-PolyForm%20Noncommercial-2391e6.svg)](LICENSE)
-[![Version](https://img.shields.io/badge/version-1.3.0-brightgreen.svg)](https://github.com/nychin/workmato/releases)
+[![Version](https://img.shields.io/badge/version-1.3.1-brightgreen.svg)](https://github.com/nychin/workmato/releases)
 [![Platform](https://img.shields.io/badge/platform-Windows-0078d6.svg)](#)
 
 ![](assets/hero.png)
@@ -68,7 +68,7 @@ A pixel-art desktop tomato timer, paired with a task flow canvas — usually it 
 
 ### Download
 
-Grab `workmato-setup-1.3.0.exe` from [Releases](https://github.com/nychin/workmato/releases) (NSIS installer, custom install directory supported), for Windows 10 / 11 (64-bit).
+Grab `workmato-setup-1.3.1.exe` from [Releases](https://github.com/nychin/workmato/releases) (NSIS installer, custom install directory supported), for Windows 10 / 11 (64-bit).
 
 ### Note
 

@@ -1,14 +1,12 @@
 [中文](README.md) · [English](README-GPT.en.md)
 
 [![License: PolyForm Noncommercial](https://img.shields.io/badge/License-PolyForm%20Noncommercial-2391e6.svg)](LICENSE)
-[![Version](https://img.shields.io/badge/version-1.3.0-brightgreen.svg)](https://github.com/nychin/workmato/releases)
+[![Version](https://img.shields.io/badge/version-1.3.1-brightgreen.svg)](https://github.com/nychin/workmato/releases)
 [![Platform](https://img.shields.io/badge/platform-Windows-0078d6.svg)](#)
 
 ![](assets/hero.png)
 
-# 工作番茄（Workmato）
-
-一只像素风格的桌面番茄钟，配一块任务流程管理画布——平时是透明的桌面小宠物陪你专注，需要规划时打开任务画布理清流程，两边独立运行、又通过告示牌互相联动。
+# 工作番茄/Workmato
 
 ## 概述
 
@@ -68,7 +66,7 @@
 
 ### 下载
 
-从 [Releases](https://github.com/nychin/workmato/releases) 下载 `workmato-setup-1.3.0.exe`（NSIS 安装包，可自定义安装目录），适用 Windows 10 / 11（64 位）。
+从 [Releases](https://github.com/nychin/workmato/releases) 下载 `workmato-setup-1.3.1.exe`（NSIS 安装包，可自定义安装目录），适用 Windows 10 / 11（64 位）。
 
 ### 说明
 
