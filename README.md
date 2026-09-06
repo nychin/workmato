@@ -1,10 +1,14 @@
-[English](README.md) · [中文](README.zh-CN.md)
+<div align="center">
+
+[🇺🇸 English](README.md) · [🇨🇳 中文](README.zh-CN.md)
 
 [![License: PolyForm Noncommercial](https://img.shields.io/badge/License-PolyForm%20Noncommercial-2391e6.svg)](LICENSE)
 [![Version](https://img.shields.io/badge/version-1.3.2-brightgreen.svg)](https://github.com/nychin/workmato/releases)
 [![Platform](https://img.shields.io/badge/platform-Windows-0078d6.svg)](#)
 
 ![](assets/hero.png)
+
+</div>
 
 # Working Tomato (Workmato)
 
@@ -108,8 +112,6 @@ Dev mode uses a separate data directory (`%TEMP%\tomato-clock-dev`), isolated fr
 **Windows**: tomato main panel, task flow manager, settings window and the animation lab — each runs on its own and opens on demand.
 
 ## Support
-
-If Working Tomato helps you, consider buying the developer a coffee ☕ via Ko-fi / PayPal:
 
 [![ko-fi](https://ko-fi.com/img/githubbutton_sm.svg)](https://ko-fi.com/nychin260828)
 
