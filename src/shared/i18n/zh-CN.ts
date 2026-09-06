@@ -70,6 +70,7 @@ export const zhCN = {
   'settings.shortcuts.conflict': '该快捷键已分配给其它操作。',
   'settings.shortcut.toggleMainWindow': '显示 / 隐藏工作番茄',
   'settings.shortcut.toggleTimer': '开始 / 暂停计时',
+  'settings.shortcut.toggleTaskFlow': '显示 / 隐藏任务流程管理器',
   'settings.shortcut.taskflowNewProject': '新建事项',
   'settings.shortcut.taskflowAddCard': '新增任务卡',
   'settings.shortcut.taskflowUndo': '撤销',

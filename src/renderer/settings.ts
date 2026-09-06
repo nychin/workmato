@@ -6,6 +6,7 @@ type Panel = 'timer' | 'shortcuts' | 'statistics' | 'system' | 'other';
 const shortcutLabels: Record<ShortcutAction, DictKey> = {
   toggleMainWindow: 'settings.shortcut.toggleMainWindow',
   toggleTimer: 'settings.shortcut.toggleTimer',
+  toggleTaskFlow: 'settings.shortcut.toggleTaskFlow',
   taskflowNewProject: 'settings.shortcut.taskflowNewProject',
   taskflowAddCard: 'settings.shortcut.taskflowAddCard',
   taskflowUndo: 'settings.shortcut.taskflowUndo',
@@ -18,7 +19,7 @@ const shortcutLabels: Record<ShortcutAction, DictKey> = {
   taskflowGroup: 'settings.shortcut.taskflowGroup',
   taskflowToggleNPanel: 'settings.shortcut.taskflowToggleNPanel',
 };
-const globalShortcutActions: ShortcutAction[] = ['toggleMainWindow', 'toggleTimer'];
+const globalShortcutActions: ShortcutAction[] = ['toggleMainWindow', 'toggleTimer', 'toggleTaskFlow'];
 const appShortcutActions: ShortcutAction[] = [
   'taskflowNewProject', 'taskflowAddCard', 'taskflowUndo', 'taskflowRedo',
   'openSettings', 'taskflowToggleSidebar', 'taskflowAddNote', 'taskflowPlaceTask',
@@ -534,7 +535,11 @@ panelElement.addEventListener('click', (event) => {
   if (target.closest('[data-save-theme]')) { void persist(t('settings.system.colorsSaved')); return; }
   if (target.closest('[data-export-user-data]')) { void window.settingsAPI.exportUserData().then((filePath) => setStatus(filePath ? t('settings.other.exportedTo', { path: filePath }) : t('settings.other.exportCancelled'))); return; }
   if (target.closest('[data-import-user-data]')) { if (window.confirm(t('settings.other.confirmImport'))) void window.settingsAPI.importUserData().then((done) => { setStatus(done ? t('settings.other.imported') : t('settings.other.importCancelled')); if (done) void reloadSettings(); }); return; }
-  if (target.closest('[data-open-support]')) { openSupportModal(); return; }
+  if (target.closest('[data-open-support]')) {
+    if (activeLanguage === 'zh-CN') openSupportModal();
+    else void window.settingsAPI.openKofiSupport();
+    return;
+  }
   if (target.closest('[data-clear-statistics]')) { if (window.confirm(t('settings.other.confirmClearStats'))) void window.settingsAPI.clearStatistics().then(() => { setStatus(t('settings.other.statsCleared')); }); return; }
   if (target.closest('[data-clear-archived]')) { if (window.confirm(t('settings.other.confirmClearArchived'))) void window.settingsAPI.clearArchivedTaskFlow().then(() => setStatus(t('settings.other.archivedCleared'))); return; }
   if (target.closest('[data-reset-settings]')) { if (window.confirm(t('settings.other.confirmReset'))) void window.settingsAPI.reset().then((next) => { settings = next; applyLocale(settings.language); setStatus(t('settings.other.resetDone')); render(); }); }

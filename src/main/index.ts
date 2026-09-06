@@ -13,6 +13,7 @@ import {
   nativeImage,
   globalShortcut,
   dialog,
+  shell,
 } from 'electron';
 import * as path from 'path';
 import fs from 'node:fs/promises';
@@ -482,9 +483,10 @@ function toggleMainWindow(): void {
 
 function registerGlobalShortcuts(): void {
   globalShortcut.unregisterAll();
-  const registrations: Array<['toggleMainWindow' | 'toggleTimer', () => void]> = [
+  const registrations: Array<['toggleMainWindow' | 'toggleTimer' | 'toggleTaskFlow', () => void]> = [
     ['toggleMainWindow', toggleMainWindow],
     ['toggleTimer', () => fsm.dispatchPrimaryShortcut()],
+    ['toggleTaskFlow', () => taskFlowWindow?.toggle()],
   ];
   for (const [action, handler] of registrations) {
     const shortcut = appSettings.shortcuts[action];
@@ -675,6 +677,7 @@ ipcMain.on('drag:end', () => {
   ipcMain.on('settings:open', () => openSettingsWindow());
   ipcMain.on('settings:close', () => hideSettingsWindow());
   ipcMain.handle('app:get-version', () => app.getVersion());
+  ipcMain.handle('support:open-kofi', () => shell.openExternal('https://ko-fi.com/nychin260828'));
   ipcMain.handle('settings:load', () => appSettings);
   ipcMain.handle('sound:import-custom', () => importCustomSound());
   ipcMain.handle('sound:get-custom-url', (_event, asset: unknown) => customSoundUrl(asset));

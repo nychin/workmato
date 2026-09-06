@@ -55,6 +55,7 @@ export interface SettingsAPI {
   open: () => void;
   close: () => void;
   getAppVersion: () => Promise<string>;
+  openKofiSupport: () => Promise<void>;
   load: () => Promise<AppSettings>;
   importCustomSound: () => Promise<{ id: string; label: string } | null>;
   getCustomSoundUrl: (asset: SoundAsset) => Promise<string | null>;
@@ -154,6 +155,7 @@ const settingsAPI: SettingsAPI = {
   open: () => ipcRenderer.send('settings:open'),
   close: () => ipcRenderer.send('settings:close'),
   getAppVersion: () => ipcRenderer.invoke('app:get-version') as Promise<string>,
+  openKofiSupport: () => ipcRenderer.invoke('support:open-kofi') as Promise<void>,
   load: () => ipcRenderer.invoke('settings:load') as Promise<AppSettings>,
   importCustomSound: () => ipcRenderer.invoke('sound:import-custom') as Promise<{ id: string; label: string } | null>,
   getCustomSoundUrl: (asset) => ipcRenderer.invoke('sound:get-custom-url', asset) as Promise<string | null>,

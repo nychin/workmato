@@ -13,6 +13,7 @@ export type SoundAsset = BuiltInSoundAsset | `custom:${string}` | null;
 export type ShortcutAction =
   | 'toggleMainWindow'
   | 'toggleTimer'
+  | 'toggleTaskFlow'
   | 'taskflowNewProject'
   | 'taskflowAddCard'
   | 'taskflowUndo'
@@ -135,6 +136,7 @@ export const DEFAULT_SETTINGS: AppSettings = {
   shortcuts: {
     toggleMainWindow: 'Alt+P',
     toggleTimer: 'Alt+O',
+    toggleTaskFlow: 'Alt+W',
     taskflowNewProject: 'Ctrl+N',
     taskflowAddCard: 'Shift+A',
     taskflowUndo: 'Ctrl+Z',

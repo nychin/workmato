@@ -67,6 +67,7 @@ export const jaJP: Record<DictKey, string> = {
   'settings.shortcuts.conflict': 'このショートカットは既に他の操作に割り当てられています。',
   'settings.shortcut.toggleMainWindow': '工作番茄の表示 / 非表示',
   'settings.shortcut.toggleTimer': 'タイマーの開始 / 一時停止',
+  'settings.shortcut.toggleTaskFlow': 'タスクフローマネージャーを表示 / 非表示',
   'settings.shortcut.taskflowNewProject': '新規項目を作成',
   'settings.shortcut.taskflowAddCard': 'タスクカードを追加',
   'settings.shortcut.taskflowUndo': '元に戻す',

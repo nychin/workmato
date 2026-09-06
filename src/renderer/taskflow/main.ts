@@ -870,7 +870,7 @@ function beginGroupDrag(event: PointerEvent): void {
 
 /** 渲染附属文本框（支持多个，按父卡片分组后从上到下排列） */
 function renderNoteCard(card: TaskCard, position: { x: number; y: number; zIndex: number; attached: boolean }): string {
-  const isCollapsed = position.attached && Boolean(card.noteCollapsed);
+  const isCollapsed = Boolean(card.noteCollapsed);
   const editingTitle = editingCardId === card.id && editingField === 'title';
   const editingBody = editingCardId === card.id && editingField === 'body';
   const selected = selectedCardIds.has(card.id);
@@ -878,7 +878,7 @@ function renderNoteCard(card: TaskCard, position: { x: number; y: number; zIndex
   // 独立便签与附属说明框共用宽度记忆和右缘拖动逻辑。
   const width = noteWidth(card);
   const height = noteHeight(card, width, position.attached ? 154 : CARD_WIDTH);
-  const fixedHeight = position.attached || drawingMode || card.noteHeight !== undefined ? height : null;
+  const fixedHeight = isCollapsed || position.attached || drawingMode || card.noteHeight !== undefined ? height : null;
   const title = card.title || t('taskflow.note.fallbackTitle');
   const body = drawingMode
     ? '<div class="task-note__drawing"><canvas class="task-note__canvas" data-note-canvas></canvas></div>'
@@ -889,9 +889,9 @@ function renderNoteCard(card: TaskCard, position: { x: number; y: number; zIndex
     <div class="task-note ${position.attached ? '' : 'task-note--standalone'} ${card.noteHeight !== undefined ? 'is-height-adjusted' : ''} ${drawingMode ? 'is-drawing' : ''} ${isCollapsed ? 'is-collapsed' : ''} ${selected ? 'is-selected' : ''} ${editingTitle || editingBody ? 'is-editing' : ''} ${editingBody ? 'is-body-editing' : ''}"
       data-card-id="${card.id}"${position.attached ? ` data-note-parent="${card.parentId}"` : ''} style="--note-bg:${card.noteColor ?? NOTE_COLORS[0]};z-index:${position.zIndex};left:${position.x}px;top:${position.y}px;width:${width}px${fixedHeight ? `;height:${fixedHeight}px` : ''}">
       <div class="task-note__head${editingTitle ? ' is-title-editing' : ''}" data-note-head="1"${position.attached ? '' : ' data-drag-handle="true"'}>
-        ${position.attached ? `<button class="task-note__toggle" data-note-toggle="collapse" title="${isCollapsed ? t('taskflow.note.expand') : t('taskflow.note.collapse')}">${isCollapsed
+        <button class="task-note__toggle" data-note-toggle="collapse" title="${isCollapsed ? t('taskflow.note.expand') : t('taskflow.note.collapse')}">${isCollapsed
           ? '<svg class="note-chevron note-chevron--right" viewBox="0 0 12 12" aria-hidden="true"><path d="M2.5 1.5 L10.5 6 L2.5 10.5 Z" /></svg>'
-          : '<svg class="note-chevron note-chevron--down" viewBox="0 0 12 12" aria-hidden="true"><path d="M1.5 2.5 L6 10.5 L10.5 2.5 Z" /></svg>'}</button>` : ''}
+          : '<svg class="note-chevron note-chevron--down" viewBox="0 0 12 12" aria-hidden="true"><path d="M1.5 2.5 L6 10.5 L10.5 2.5 Z" /></svg>'}</button>
         ${editingTitle ? `<input class="title-editor note-title-editor" data-editor="title" value="${escapeHTML(card.title)}" />` : `<span class="task-note__title" data-note-title="1">${escapeHTML(title)}</span>`}
         <button class="task-note__mode" data-note-mode title="${drawingMode ? t('taskflow.note.switchToText') : t('taskflow.note.switchToDraw')}">${drawingMode
           ? '<svg class="note-mode-icon note-mode-icon--pen" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 20l1.3-5.1L15.8 4.4l3.8 3.8L9.1 18.7 4 20Z" /><path d="m5.3 14.9 3.8 3.8" /><path d="m15.8 4.4 1.7-1.7a1.35 1.35 0 0 1 1.9 0l1.9 1.9a1.35 1.35 0 0 1 0 1.9l-1.7 1.7" /><path class="note-mode-icon__tip" d="M4.35 19.65Q4.13 19.95 4.48 20.03L8.55 18.98 5.32 15.75Z" /></svg>'
@@ -3917,10 +3917,16 @@ function wireKeyboard(): void {
         exitQuickConnectMode();
         return;
       }
+      // 首次 Esc 先关闭右键菜单；普通浏览状态下关闭任务流程管理器窗口。
+      if (document.querySelector('.context-menu')) return;
+      const hadTransientMode = Boolean(placementMode || connectionState);
       exitPlacementMode();
       connectionState = null;
       clearConnectionSnap();
       renderEdges();
+      if (hadTransientMode) return;
+      event.preventDefault();
+      window.taskFlowAPI.closeWindow();
     } else if (shortcutMatches(event, taskFlowPreferences.shortcuts.taskflowAddCard)) {
       event.preventDefault();
       enterPlacementMode();

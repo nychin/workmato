@@ -48,6 +48,7 @@ declare global {
       open: () => void;
       close: () => void;
       getAppVersion: () => Promise<string>;
+      openKofiSupport: () => Promise<void>;
       load: () => Promise<AppSettings>;
       importCustomSound: () => Promise<{ id: string; label: string } | null>;
       getCustomSoundUrl: (asset: SoundAsset) => Promise<string | null>;

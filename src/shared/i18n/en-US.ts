@@ -65,6 +65,7 @@ export const enUS: Record<DictKey, string> = {
   'settings.shortcuts.conflict': 'This shortcut is already assigned to another action.',
   'settings.shortcut.toggleMainWindow': 'Show / Hide Workmato',
   'settings.shortcut.toggleTimer': 'Start / Pause timer',
+  'settings.shortcut.toggleTaskFlow': 'Show / Hide task flow manager',
   'settings.shortcut.taskflowNewProject': 'New item',
   'settings.shortcut.taskflowAddCard': 'Add task card',
   'settings.shortcut.taskflowUndo': 'Undo',

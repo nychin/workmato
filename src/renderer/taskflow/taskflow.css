@@ -173,7 +173,7 @@ textarea:focus-visible {
   height: 38px;
   border: 2px solid var(--tf-ink);
   border-radius: 12px;
-  background: var(--tf-paper-warm);
+  background: transparent;
   cursor: pointer;
   transition: transform 100ms ease, background 120ms ease;
 }
@@ -1044,10 +1044,11 @@ textarea:focus-visible {
 }
 .task-note.is-collapsed { cursor: pointer; }
 .task-note--standalone { min-height: 286px; }
+.task-note--standalone.is-collapsed { min-height: 0; }
 .task-note--standalone.is-height-adjusted { min-height: 0; }
 /* 收起时隐藏标题栏下方的虚线分隔 */
 .task-note.is-collapsed .task-note__head { border-bottom: 0; }
-.task-note.is-selected { outline: 0; box-shadow: 0 0 0 3px rgba(39, 53, 96, 0.35); }
+.task-note.is-selected { outline: 0; }
 .task-note__head {
   display: flex;
   align-items: center;
@@ -1058,6 +1059,7 @@ textarea:focus-visible {
   cursor: pointer;
 }
 .task-note__head:hover { background: rgba(255, 255, 255, 0.4); }
+.task-note.is-selected .task-note__head { background: rgba(255, 255, 255, 0.4); }
 .task-note--standalone .task-note__head { cursor: grab; }
 .task-note__head.is-title-editing,
 .task-note__head.is-title-editing * { cursor: text; }
@@ -1069,7 +1071,7 @@ textarea:focus-visible {
   /* 去掉按钮描边 */
   border: 0;
   border-radius: 12px; /* 加大圆角 */
-  background: var(--tf-paper-warm);
+  background: transparent;
   line-height: 1;
   cursor: pointer;
 }
@@ -1086,7 +1088,7 @@ textarea:focus-visible {
   stroke-width: 2.2;
   stroke-linejoin: round; /* 三角形的圆角 */
 }
-.task-note__toggle:hover { background: var(--tf-amber-soft); }
+.task-note__toggle:hover { background: #FFFCEF; }
 .task-note__title {
   flex: 1;
   min-width: 0;
@@ -1139,7 +1141,7 @@ textarea:focus-visible {
   position: relative;
   left: 8px;
 }
-.task-note__mode:hover { background: rgba(255, 255, 255, 0.38); }
+.task-note__mode:hover { background: #FFFCEF; }
 .note-mode-icon {
   display: block;
   width: 18px;

@@ -21,7 +21,7 @@ export interface SettingsRepositoryOptions {
 }
 
 const SHORTCUT_ACTIONS: ShortcutAction[] = [
-  'toggleMainWindow', 'toggleTimer', 'taskflowNewProject', 'taskflowAddCard',
+  'toggleMainWindow', 'toggleTimer', 'toggleTaskFlow', 'taskflowNewProject', 'taskflowAddCard',
   'taskflowUndo', 'taskflowRedo', 'openSettings', 'taskflowToggleSidebar',
   'taskflowAddNote', 'taskflowPlaceTask', 'taskflowDetachCard', 'taskflowGroup', 'taskflowToggleNPanel',
 ];
