@@ -93,46 +93,15 @@ npm run pack:dir       # build portable directory (release/win-unpacked)
 
 Dev mode uses a separate data directory (`%TEMP%\tomato-clock-dev`), isolated from the installed app, so debugging never touches your real task data.
 
-## Architecture (at a glance)
+## Architecture
+The project uses a local-first Electron architecture organized around runtime boundaries:
 
-```mermaid
-flowchart TB
-    subgraph Electron[Electron desktop app]
-        Main[Main process\nTimer FSM · windows · IPC]
-        Preload[Preload\nminimal contextBridge API]
-        subgraph Renderer[Renderer processes]
-            Tomato[Tomato timer\nPixiJS / WebGL]
-            Canvas[Task flow canvas\nplain TypeScript]
-            Settings[Settings & statistics]
-        end
-    end
+- **Main process** owns window lifecycle, the timer state machine, system events, and all database access.
+- **Renderer processes** own presentation for the timer, task canvas, and settings. PixiJS powers the timer; the canvas is plain TypeScript.
+- **Preload / IPC** exposes a small typed API through `contextBridge`; renderers never access Node.js or the filesystem directly.
+- **Data layer** uses sql.js (SQLite compiled to WASM) for tasks, time records, and settings. Persistence is centralized in the main process.
 
-    Tomato <--> Preload
-    Canvas <--> Preload
-    Settings <--> Preload
-    Preload <--> Main
-    Main <--> Storage[(sql.js / SQLite\nlocal persistence)]
-    Main --> Timer[TimerFSM + 1-second engine]
-    Timer --> Tomato
-```
-
-Working Tomato uses a **local-first Electron + TypeScript architecture**: the main process owns system capabilities, timing, and persistence, while renderer processes handle presentation. All cross-process communication goes through the minimal API exposed by preload.
-
-**Shell**: Electron + TypeScript (strict), split into main / renderer / preload, with a minimal API exposed through `contextBridge`; the renderer process never touches system capabilities directly.
-
-**Tomato window**: PixiJS 6 (WebGL) renders the 491×407 pixel canvas from bitmap assets. The window is frameless and transparent, and click-through is driven by a static hitmap — only the button regions accept clicks, everything else is for dragging the window.
-
-**Timing core**: A table-driven state machine (TimerFSM) plus a one-second engine in the main process, driving idle → focus → overtime → break and back. Events such as task completion trigger the celebration animation over IPC.
-
-**Animation system**: A home-grown declarative Timeline engine (JSON parameters for easing, duration, scale) powers breathing, state transitions, celebration and nag animations. A hidden animation lab (click the tomato stem five times) tunes them live.
-
-**Task flow canvas**: A free-form canvas written in plain TypeScript (no frontend framework), supporting an infinite canvas, flow edges, note/scribble cards, grouping, undo/redo and search-to-locate by task name.
-
-**Storage**: sql.js (SQLite compiled to WASM). All reads and writes go through the main process with atomic flushing; the renderer reaches data over IPC (the preload API), keeping data consistent and migrations safe.
-
-**Localization**: English / Chinese / Japanese built in, with strings centralized in `src/shared/i18n`; the sample task data is provided per language as well.
-
-**Windows**: tomato main panel, task flow manager, settings window and the animation lab — each runs on its own and opens on demand.
+The timer is state-machine driven. State and data changes are sent to windows over IPC, so windows depend only on the preload contract rather than each other’s implementation. Vite builds the renderer, TypeScript compiles the main process, and electron-builder packages the Windows installer.
 
 ## Support
 
