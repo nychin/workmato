@@ -95,6 +95,29 @@ Dev mode uses a separate data directory (`%TEMP%\tomato-clock-dev`), isolated fr
 
 ## Architecture (at a glance)
 
+```mermaid
+flowchart TB
+    subgraph Electron[Electron desktop app]
+        Main[Main process\nTimer FSM · windows · IPC]
+        Preload[Preload\nminimal contextBridge API]
+        subgraph Renderer[Renderer processes]
+            Tomato[Tomato timer\nPixiJS / WebGL]
+            Canvas[Task flow canvas\nplain TypeScript]
+            Settings[Settings & statistics]
+        end
+    end
+
+    Tomato <--> Preload
+    Canvas <--> Preload
+    Settings <--> Preload
+    Preload <--> Main
+    Main <--> Storage[(sql.js / SQLite\nlocal persistence)]
+    Main --> Timer[TimerFSM + 1-second engine]
+    Timer --> Tomato
+```
+
+Working Tomato uses a **local-first Electron + TypeScript architecture**: the main process owns system capabilities, timing, and persistence, while renderer processes handle presentation. All cross-process communication goes through the minimal API exposed by preload.
+
 **Shell**: Electron + TypeScript (strict), split into main / renderer / preload, with a minimal API exposed through `contextBridge`; the renderer process never touches system capabilities directly.
 
 **Tomato window**: PixiJS 6 (WebGL) renders the 491×407 pixel canvas from bitmap assets. The window is frameless and transparent, and click-through is driven by a static hitmap — only the button regions accept clicks, everything else is for dragging the window.
@@ -115,7 +138,6 @@ Dev mode uses a separate data directory (`%TEMP%\tomato-clock-dev`), isolated fr
 
 [![ko-fi](https://ko-fi.com/img/githubbutton_sm.svg)](https://ko-fi.com/nychin260828)
 
-Users in mainland China can also tip via the QR code in the app's **Settings → About** page.
 
 ## License
 
