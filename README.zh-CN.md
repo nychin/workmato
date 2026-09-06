@@ -107,14 +107,9 @@ npm run pack:dir     # 打包免安装目录版（release/win-unpacked）
 
 ## 支持项目
 
-如果这个工具对你有帮助，可以请开发者喝杯咖啡 ☕
+如果这个工具对你有帮助，可以请开发者喝杯咖啡 ☕——点击下面的按钮查看赞赏码：
 
-<details>
-<summary><b>点击查看微信赞赏码</b></summary>
-
-![](static/money-receiving-qr-code.png)
-
-</details>
+[![微信赞赏](https://img.shields.io/badge/微信-扫码赞赏-07C160?logo=wechat&logoColor=white)](static/money-receiving-qr-code.png)
 
 ## 许可证
 
