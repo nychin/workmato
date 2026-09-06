@@ -105,14 +105,6 @@ npm run pack:dir     # 打包免安装目录版（release/win-unpacked）
 
 **窗口组成**：番茄钟主面板、任务流程管理器、设置窗口、动画调试面板，各窗口独立运行、按需开合。
 
-## 支持开发
-
-如果工作番茄对你有帮助，可以请开发者喝杯咖啡 ☕
-
-**微信赞赏**（应用内「设置 → 关于」也可查看）：
-
-![](static/money-receiving-qr-code.png)
-
 ## 许可证
 
 本项目采用 [PolyForm Noncommercial 1.0.0](LICENSE)。
