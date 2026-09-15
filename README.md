@@ -13,9 +13,10 @@
 # Workmato
 ## Overview
 
-- Workmato is a desktop-pet style productivity tool. Its main panel is a pixel-art pomodoro timer, and there is also a task flow manager window.
+- A playful Pomodoro timer and visual task planner with a hand-drawn pixel art style all its own.
 - **Languages**: English, Chinese, Japanese
 - **Requirements**: Windows 10 / 11 (64-bit). Built on Electron, cross-platform in principle.
+- **User guide**: The usage guide lives in the task flow manager — be sure to open it. Right-click the billboard on the left of the tomato panel, or right-click the tray icon, to open it.
 
 ## Features
 
