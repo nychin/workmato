@@ -5,8 +5,8 @@
  *   dev-guide.json 由 scripts/guide-source/export-dev-guide.cjs 生成
  *   （或手工从导出的用户数据中提取“说明”项目，结构同 guide.zh.json）。
  *
- * 行为：按卡片 id 匹配，更新结构（x/y/连线/分组）与 zh 文本；已存在的卡保留 en/ja 翻译；
- *       新增卡仅写入 zh（en/ja 由 sync 脚本回退到 zh，需人工补翻）。
+ * 行为：按卡片 id 匹配并同步增删、结构与原始中文。未修改的字段保留翻译；
+ *       id 重建时按完全相同的中文内容复用翻译，新增或修改的文本需人工补翻。
  */
 const fs = require('node:fs');
 const path = require('node:path');
@@ -19,10 +19,16 @@ const incoming = JSON.parse(fs.readFileSync(path.resolve(source), 'utf8'));
 const data = JSON.parse(fs.readFileSync(dataPath, 'utf8'));
 if (!incoming.cards || !Array.isArray(incoming.cards)) throw new Error('输入文件缺少 cards。');
 
-const clean = (text) => (text ?? '')
-  .replace(/sihft/g, 'Shift')
-  .replace(/tap键/g, 'Tab 键')
-  .replace(/补充(?!卡片)/g, '附属便签');
+const clean = (text) => text ?? '';
+
+const translationsByText = new Map(data.cards.map((card) => [JSON.stringify([card.title.zh, card.markdown.zh]), card]));
+const cardIds = new Set(incoming.cards.map((card) => card.id));
+for (const edge of incoming.edges ?? []) {
+  if (!cardIds.has(edge.sourceId) || !cardIds.has(edge.targetId)) throw new Error(`连线 ${edge.id} 缺少有效的 sourceId/targetId。`);
+}
+// 同步删除的卡片，避免旧说明在每次生成时重新出现。
+const incomingIds = new Set(incoming.cards.map((card) => card.id));
+data.cards = data.cards.filter((card) => incomingIds.has(card.id));
 
 const existing = new Map(data.cards.map((card) => [card.id, card]));
 let added = 0;
@@ -41,19 +47,20 @@ for (const incomingCard of incoming.cards) {
       else delete current[key];
     }
     if (clean(incomingCard.title) !== current.title.zh) {
-      current.title.zh = clean(incomingCard.title);
+      current.title = { zh: clean(incomingCard.title) };
       updated++;
     }
-    current.markdown.zh = clean(incomingCard.markdown ?? '');
+    if (clean(incomingCard.markdown) !== current.markdown.zh) current.markdown = { zh: clean(incomingCard.markdown) };
   } else {
+    const translated = translationsByText.get(JSON.stringify([clean(incomingCard.title), clean(incomingCard.markdown)]));
     const card = {
       id: incomingCard.id,
       x: incomingCard.x,
       y: incomingCard.y,
       collapsed: Boolean(incomingCard.collapsed),
       completed: Boolean(incomingCard.completed),
-      title: { zh: clean(incomingCard.title) },
-      markdown: { zh: clean(incomingCard.markdown ?? '') },
+      title: translated ? { ...translated.title } : { zh: clean(incomingCard.title) },
+      markdown: translated ? { ...translated.markdown } : { zh: clean(incomingCard.markdown) },
     };
     for (const key of ['parentId', 'cardType', 'noteMode', 'drawing', 'noteCollapsed', 'noteWidth', 'noteHeight', 'groupId']) {
       if (incomingCard[key] !== undefined && incomingCard[key] !== null) card[key] = incomingCard[key];

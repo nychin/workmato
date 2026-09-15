@@ -65,6 +65,8 @@ export interface TaskCard {
   noteColor?: string;
   /** 任务卡片右键设置的内描边色彩标签。 */
   colorTag?: string;
+  /** 最近一次被挂起的时间，用于番茄钟快捷切换列表。 */
+  suspendedAt?: string | null;
   /** 所属打组的 id（Ctrl+G 创建）；同一组的所有卡片共享一个外围彩色边界框 */
   groupId?: string | null;
 }

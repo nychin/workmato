@@ -12,6 +12,7 @@ interface FocusSession {
   startedAt: string;
   plannedSeconds: number;
   task: FocusTaskSnapshot;
+  segmentStartedSeconds: number;
 }
 
 function localDate(value: string): string {
@@ -28,7 +29,35 @@ export class FocusSessionTracker {
   private session: FocusSession | null = null;
 
   begin(plannedSeconds: number, task: FocusTaskSnapshot): void {
-    this.session = { id: createId(), startedAt: new Date().toISOString(), plannedSeconds, task };
+    this.session = { id: createId(), startedAt: new Date().toISOString(), plannedSeconds, task, segmentStartedSeconds: 0 };
+  }
+
+  /** 计时进行中切换任务：立即结算旧任务当前时间片，并开始新的时间片。 */
+  switchTask(elapsedSeconds: number, task: FocusTaskSnapshot): FocusRecord | null {
+    if (!this.session) return null;
+    const previous = this.session;
+    const completedAt = new Date().toISOString();
+    const record: FocusRecord = {
+      id: previous.id,
+      startedAt: previous.startedAt,
+      completedAt,
+      localDate: localDate(completedAt),
+      taskCardId: previous.task.taskCardId,
+      taskTitle: previous.task.taskTitle,
+      projectId: previous.task.projectId,
+      projectTitle: previous.task.projectTitle,
+      focusSeconds: Math.max(0, Math.floor(elapsedSeconds - previous.segmentStartedSeconds)),
+      plannedSeconds: previous.plannedSeconds,
+      completed: false,
+    };
+    this.session = {
+      id: createId(),
+      startedAt: completedAt,
+      plannedSeconds: previous.plannedSeconds,
+      task,
+      segmentStartedSeconds: Math.max(0, elapsedSeconds),
+    };
+    return record;
   }
 
   finish(focusSeconds: number, completed: boolean, finalize = true): FocusRecord | null {
@@ -45,7 +74,7 @@ export class FocusSessionTracker {
       taskTitle: session.task.taskTitle,
       projectId: session.task.projectId,
       projectTitle: session.task.projectTitle,
-      focusSeconds: Math.max(0, Math.floor(focusSeconds)),
+      focusSeconds: Math.max(0, Math.floor(focusSeconds - session.segmentStartedSeconds)),
       plannedSeconds: session.plannedSeconds,
       completed,
     };

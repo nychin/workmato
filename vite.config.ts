@@ -14,6 +14,7 @@ export default defineConfig({
         index: resolve(__dirname, 'src/renderer/index.html'),
         taskflow: resolve(__dirname, 'src/renderer/taskflow.html'),
         settings: resolve(__dirname, 'src/renderer/settings.html'),
+        context: resolve(__dirname, 'src/renderer/context.html'),
       },
       output: {
         format: 'es',

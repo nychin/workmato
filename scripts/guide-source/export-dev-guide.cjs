@@ -44,23 +44,25 @@ initSqlJs().then((SQL) => {
   const cardRows = rows(db, `SELECT * FROM cards WHERE project_id='${guideId}'`);
   const cards = cardRows.map((c) => {
     const out = {
-      id: c.id, project_id: c.project_id, title: c.title, markdown: c.markdown,
-      x: c.x, y: c.y, collapsed: c.collapsed, completed: c.completed,
-      created_at: c.created_at, updated_at: c.updated_at,
-      parent_id: c.parent_id, card_type: c.card_type, note_mode: c.note_mode,
-      drawing: c.drawing, note_collapsed: c.note_collapsed, note_width: c.note_width,
-      group_id: c.group_id, note_height: c.note_height,
+      id: c.id, projectId: c.project_id, title: c.title, markdown: c.markdown,
+      x: c.x, y: c.y, collapsed: Boolean(c.collapsed), completed: Boolean(c.completed),
+      createdAt: c.created_at, updatedAt: c.updated_at,
+      parentId: c.parent_id, cardType: c.card_type, noteMode: c.note_mode,
+      drawing: c.drawing ? JSON.parse(c.drawing) : undefined,
+      noteCollapsed: Boolean(c.note_collapsed), noteWidth: c.note_width,
+      groupId: c.group_id, noteHeight: c.note_height,
     };
     return out;
   });
   const edges = rows(db, `SELECT * FROM edges WHERE project_id='${guideId}'`).map((e) => ({
-    id: e.id, project_id: e.project_id, source_id: e.source_id, target_id: e.target_id, created_at: e.created_at,
+    id: e.id, projectId: e.project_id, sourceId: e.source_id, targetId: e.target_id, createdAt: e.created_at,
   }));
   const groupRows = rows(db, 'SELECT * FROM groups');
-  const referencedGroupIds = new Set(cards.map((c) => c.group_id).filter(Boolean));
+  const referencedGroupIds = new Set(cards.map((c) => c.groupId).filter(Boolean));
   const groups = groupRows.filter((g) => referencedGroupIds.has(g.id)).map((g) => ({ id: g.id, color: g.color }));
 
   const out = { version: 1, projects: project, projectGroups: [], cards, edges, groups, pinnedCardId: null, activeProjectId: guideId };
   fs.writeFileSync(outputPath, JSON.stringify(out, null, 2));
+  db.close();
   console.log(`Exported guide: ${cards.length} cards, ${edges.length} edges, ${groups.length} groups → ${outputPath}`);
 });

@@ -3,7 +3,7 @@
 [🇺🇸 English](README.md) · [🇨🇳 中文](README.zh-CN.md)
 
 [![License: PolyForm Noncommercial](https://img.shields.io/badge/License-PolyForm%20Noncommercial-2391e6.svg)](LICENSE)
-[![Version](https://img.shields.io/badge/version-1.3.2-brightgreen.svg)](https://github.com/nychin/workmato/releases)
+[![Version](https://img.shields.io/badge/version-1.4.1-brightgreen.svg)](https://github.com/nychin/workmato/releases)
 [![Platform](https://img.shields.io/badge/platform-Windows-0078d6.svg)](#)
 
 ![](assets/hero.png)
@@ -46,6 +46,10 @@
 **统计**
 - 番茄钟和任务管理器一同使用时可以对每个任务的每个环节所耗费的时间进行统计，跟踪自己的工作状态
 
+**临时便签**
+- 一个独立的用于临时工作想法记录的便签面板，临时便签的条目会随时间自动归档，该面板还具备自动缩小，悬停展开、鼠标穿透、透明度调节等特性
+![](assets/临时便签.gif)
+
 **庆祝动画**
 - 当任务完成时小番茄会一起庆祝（处于专注状态时）
 
@@ -70,7 +74,7 @@
 
 ### 下载
 
-从 [Releases](https://github.com/nychin/workmato/releases) 下载 `workmato-setup-1.3.2.exe`（NSIS 安装包，可自定义安装目录），适用 Windows 10 / 11（64 位）。
+从 [Releases](https://github.com/nychin/workmato/releases) 下载 `workmato-setup-1.4.1.exe`（NSIS 安装包，可自定义安装目录），适用 Windows 10 / 11（64 位）。
 
 ### 说明
 

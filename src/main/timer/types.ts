@@ -48,6 +48,7 @@ export interface TransitionInfo {
 
 // ── 状态→渲染的完整视图数据 ──
 export interface TimerDisplayState {
+  dailyPomodoroCount: number;
   state: TimerState;
   timerMode: TimerMode;
   minutes: number;

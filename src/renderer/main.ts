@@ -5,7 +5,7 @@
  */
 import * as PIXI from 'pixi.js';
 import { loadAssets, CANVAS_W, CANVAS_H } from './assets';
-import { installTicker } from './anime';
+import { installTicker, tween, type AnimHandle } from './anime';
 import { ButtonController } from './buttons';
 import { LayoutRenderer, SUNLIGHT_KEYS } from './layout';
 import { generateHitmap } from './hitmap';
@@ -113,6 +113,88 @@ async function main(): Promise<void> {
     groups.set(gk, ct);
     app.stage.addChild(ct);
   }
+  const recentSelectionCt = new PIXI.Container();
+  recentSelectionCt.name = 'recent-suspended';
+  recentSelectionCt.visible = false;
+  const rockContainer = groups.get('rock')!;
+  rockContainer.addChild(recentSelectionCt);
+  let recentSuspended: Array<{ id: string; title: string }> = [];
+  let recentSelectionAnimation: AnimHandle | null = null;
+  let recentSelectionAnimating = false;
+  const selectionTargetX = 10;
+  const selectionTargetY = (index: number): number => 110 + index * 43;
+  const selectionOriginX = 132;
+  const selectionOriginY = 300;
+  const renderRecentSelection = (): void => {
+    for (const child of recentSelectionCt.removeChildren()) child.destroy();
+    const texture = store.sprites.get('rock_billboard_select')?.texture;
+    if (!texture) return;
+    for (let i = 0; i < 6; i += 1) {
+      const sign = new PIXI.Sprite(texture);
+      sign.name = `slot-${i}`;
+      sign.position.set(selectionTargetX, selectionTargetY(i));
+      recentSelectionCt.addChild(sign);
+      const item = recentSuspended[i];
+      if (item?.title) {
+        const label = new PIXI.Text(item.title.slice(0, 7), {
+          fontFamily: 'ResourceHanRoundedCN-Bold, sans-serif', fontSize: 16,
+          fill: 0x4a3426, padding: 1,
+        });
+        label.name = `slot-${i}`;
+        label.position.set(selectionTargetX + 10, selectionTargetY(i) + 16);
+        label.anchor.set(0, 0.5);
+        label.roundPixels = true;
+        label.texture.baseTexture.scaleMode = PIXI.SCALE_MODES.NEAREST;
+        recentSelectionCt.addChild(label);
+      }
+    }
+  };
+  const setRecentSelectionVisible = (visible: boolean): void => {
+    recentSelectionAnimation?.cancel();
+    recentSelectionAnimating = true;
+    recentSelectionCt.visible = true;
+    renderRecentSelection();
+    // 展开从告示牌附近起步，先设置起点再进入下一帧，避免目标位置闪现。
+    if (visible) {
+      recentSelectionCt.children.forEach((child) => {
+        const index = Number(child.name.slice(5));
+        const isLabel = child instanceof PIXI.Text;
+        child.position.set(selectionOriginX + (isLabel ? 10 : 0), selectionOriginY + (isLabel ? 16 : 0));
+      });
+    }
+    const update = (p: number): void => {
+      const eased = 1 - Math.pow(1 - p, 3);
+      const q = visible ? eased : 1 - eased;
+      recentSelectionCt.children.forEach((child) => {
+        const index = Number(child.name.slice(5));
+        const isLabel = child instanceof PIXI.Text;
+        const ox = selectionOriginX + (isLabel ? 10 : 0);
+        const oy = selectionOriginY + (isLabel ? 16 : 0);
+        const tx = selectionTargetX + (isLabel ? 10 : 0);
+        const ty = selectionTargetY(index) + (isLabel ? 16 : 0);
+        child.position.set(ox + (tx - ox) * q, oy + (ty - oy) * q);
+      });
+    };
+    if (layoutRenderer?.layout) api.setHitmap(generateHitmap(store, layoutRenderer.layout, true));
+    recentSelectionAnimation = tween({ duration: 280, onUpdate: update, onDone: () => {
+      recentSelectionAnimation = null;
+      recentSelectionAnimating = false;
+      recentSelectionCt.visible = visible;
+      if (visible) renderRecentSelection();
+      if (layoutRenderer?.layout) api.setHitmap(generateHitmap(store, layoutRenderer.layout, visible));
+    } });
+  };
+
+  const attachRecentSelectionLayer = (): void => {
+    if (recentSelectionCt.parent !== rockContainer) rockContainer.addChild(recentSelectionCt);
+    const billboard = rockContainer.getChildByName('rock_billboard');
+    if (billboard) rockContainer.setChildIndex(recentSelectionCt, rockContainer.getChildIndex(billboard));
+    // rock_button 保持在石头底图之上，但位于快捷任务牌下方，避免遮住列表。
+    const rockButton = rockContainer.getChildByName('rock_button');
+    if (rockButton && rockContainer.getChildIndex(rockButton) > rockContainer.getChildIndex(recentSelectionCt)) {
+      rockContainer.setChildIndex(rockButton, rockContainer.getChildIndex(recentSelectionCt));
+    }
+  };
 
   // ── 动画 ticker ──
   installTicker(app);
@@ -192,6 +274,7 @@ async function main(): Promise<void> {
   let dragLastX = 0;
   let dragLastY = 0;
   let currentDisplay: TimerDisplayState = {
+    dailyPomodoroCount: 0,
     state: 'idle',
     timerMode: 'stopped',
     minutes: 30,
@@ -269,10 +352,38 @@ async function main(): Promise<void> {
     const { x, y } = getCursorPos(e);
     buttons.onHover(x, y);
   });
+  view.addEventListener('mouseleave', () => {
+    buttons.onHover(CANVAS_W * 2, CANVAS_H * 2);
+  });
+
+  view.addEventListener('contextmenu', (e: MouseEvent) => {
+    const { x, y } = getCursorPos(e);
+    if (buttons.hitTest(x, y)?.def.key !== 'rock_billboard') return;
+    e.preventDefault();
+    // 右键告示牌：打开任务流程管理器（与左键行为互换）。
+    api.openTaskFlow();
+  });
 
   view.addEventListener('mousedown', (e: MouseEvent) => {
     if (e.button !== 0) return;
     const { x, y } = getCursorPos(e);
+
+    if (recentSelectionCt.visible && !recentSelectionAnimating && x >= selectionTargetX && x <= selectionTargetX + 103 && y >= 110 && y < 110 + 6 * 43) {
+      const index = Math.max(0, Math.min(5, Math.floor((y - 110) / 43)));
+      api.selectSuspendedTask(recentSuspended[index]?.id ?? null);
+      setRecentSelectionVisible(false);
+      e.preventDefault();
+      e.stopPropagation();
+      return;
+    }
+
+    // 左键告示牌：展开/收起最近挂起任务列表。
+    if (buttons.hitTest(x, y)?.def.key === 'rock_billboard') {
+      if (!recentSelectionAnimating) setRecentSelectionVisible(!recentSelectionCt.visible);
+      e.preventDefault();
+      e.stopPropagation();
+      return;
+    }
 
     if (isTimeInput) {
       if (!commitTimeInput()) endTimeInput(true);
@@ -364,6 +475,7 @@ async function main(): Promise<void> {
     if (state.state === 'celebrating') sound.playEvent('taskComplete');
 
     const tracked = layoutRenderer.apply(state);
+    attachRecentSelectionLayer();
     buttons.setTracked(tracked);
     if (isTimeInput) renderTimeInput();
 
@@ -405,7 +517,7 @@ async function main(): Promise<void> {
 
     // 每次状态切换重新生成命中表（按钮布局随状态变化）
     const layout = layoutRenderer.layout;
-    if (layout) api.setHitmap(generateHitmap(store, layout));
+    if (layout) api.setHitmap(generateHitmap(store, layout, recentSelectionCt.visible));
 
     if (trans && prev !== state.state) {
       // ── 过渡路径（P1 握手协议）──
@@ -444,11 +556,16 @@ async function main(): Promise<void> {
 
   api.onTimerTick((state: TimerDisplayState) => {
     currentDisplay = state;
+    layoutRenderer.updateDailyCount(state.dailyPomodoroCount);
     if (!isTimeInput) layoutRenderer.updateDigits(state);
   });
 
   api.onPinnedTaskTitle((title) => {
     layoutRenderer.setPinnedTaskTitle(title);
+  });
+  api.onRecentSuspended((items) => {
+    recentSuspended = items.slice(0, 6);
+    if (recentSelectionCt.visible && !recentSelectionAnimating) renderRecentSelection();
   });
 
   window.settingsAPI.onUpdated((settings) => sound.applySettings(settings.sound));
@@ -476,9 +593,10 @@ async function main(): Promise<void> {
   // ── 初始布局 ──
   const initial: TimerDisplayState = currentDisplay;
   const tracked = layoutRenderer.apply(initial);
+  attachRecentSelectionLayer();
   buttons.setTracked(tracked);
   if (layoutRenderer.layout) {
-    api.setHitmap(generateHitmap(store, layoutRenderer.layout));
+    api.setHitmap(generateHitmap(store, layoutRenderer.layout, recentSelectionCt.visible));
   }
   breathing.startForState('idle', '');
 

@@ -19,6 +19,7 @@ interface TaskFlowWindowOptions {
   timerFSM: TimerFSM;
   onPinnedTitleChange: (title: string) => void;
   onDataChange: (data: TaskFlowData) => void;
+  onPinnedTaskSwitch?: (previous: TaskFlowData, next: TaskFlowData) => Promise<void>;
 }
 
 /**
@@ -31,19 +32,32 @@ export class TaskFlowWindowController {
   private readonly timerFSM: TimerFSM;
   private readonly onPinnedTitleChange: (title: string) => void;
   private readonly onDataChange: (data: TaskFlowData) => void;
+  private readonly onPinnedTaskSwitch?: (previous: TaskFlowData, next: TaskFlowData) => Promise<void>;
   private boundsBeforeHalfScreen: Rectangle | null = null;
   private halfScreened = false;
+  private quitting = false;
+  private showWhenReady = false;
+
+  prepare(): void {
+    if (!this.window && !this.quitting) this.createWindow(false);
+  }
+
+  prepareToQuit(): void { this.quitting = true; }
 
   constructor(options: TaskFlowWindowOptions) {
     this.repository = options.repository;
     this.timerFSM = options.timerFSM;
     this.onPinnedTitleChange = options.onPinnedTitleChange;
     this.onDataChange = options.onDataChange;
+    this.onPinnedTaskSwitch = options.onPinnedTaskSwitch;
     this.registerIPC();
   }
 
   open(): void {
+    this.showWhenReady = true;
     if (this.window && !this.window.isDestroyed()) {
+      if (this.window.webContents.isLoading()) return;
+      if (this.window.isMinimized()) this.window.restore();
       this.window.show();
       this.window.focus();
       return;
@@ -62,15 +76,15 @@ export class TaskFlowWindowController {
       } else if (this.window.isVisible()) {
         this.window.minimize();
       } else {
-        this.window.show();
-        this.window.focus();
+        this.open();
       }
       return;
     }
     this.createWindow();
   }
 
-  private createWindow(): void {
+  private createWindow(show = true): void {
+    this.showWhenReady = show;
 
     const display = screen.getPrimaryDisplay().workArea;
     const width = Math.min(1500, Math.max(960, display.width - 80));
@@ -108,7 +122,15 @@ export class TaskFlowWindowController {
       // 清除旧版按同源保存的页面缩放，避免受到番茄钟历史缩放设置影响。
       this.window?.webContents.setZoomFactor(1);
     });
-    this.window.once('ready-to-show', () => this.window?.show());
+    this.window.once('ready-to-show', () => {
+      if (this.showWhenReady) { this.window?.show(); this.window?.focus(); }
+    });
+    this.window.on('close', (event) => {
+      if (this.quitting) return;
+      event.preventDefault();
+      this.showWhenReady = false;
+      this.window?.hide();
+    });
     this.window.on('closed', () => {
       this.window = null;
     });
@@ -128,6 +150,8 @@ export class TaskFlowWindowController {
     ipcMain.handle('taskflow:load', () => this.repository.load());
 
     ipcMain.handle('taskflow:save', async (_event, data: TaskFlowData) => {
+      const previous = await this.repository.load();
+      if (previous.pinnedCardId !== data.pinnedCardId) await this.onPinnedTaskSwitch?.(previous, data);
       await this.repository.save(data);
       const pinnedCard = data.cards.find((card) => card.id === data.pinnedCardId);
       this.onPinnedTitleChange(pinnedCard?.title ?? '');

@@ -1226,6 +1226,7 @@ textarea:focus-visible {
 .task-note__body p { margin: 0; line-height: 1.7; white-space: pre-wrap; font-weight: normal; }
 .task-note__body p.markdown-blank { margin: 0; height: 1.7em; }
 .task-note__body .card-editor { font-size: 16px; line-height: 1.7; }
+.task-note.is-height-adjusted .task-note__body .card-editor { height: 100% !important; overflow-y: auto; }
 .task-note__body.is-editing,
 .task-note__body.is-editing * { cursor: text; }
 /* 说明框编辑态（标题或正文）：整个说明框统一文本光标，

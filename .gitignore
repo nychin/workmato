@@ -10,3 +10,4 @@ release/
 .env*
 Thumbs.db
 desktop.ini
+/.context-smoke/

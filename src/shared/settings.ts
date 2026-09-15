@@ -37,6 +37,7 @@ export interface TimerSettings {
   shortRestMinutes: number;
   longRestMinutes: number;
   longRestInterval: number;
+  resetTime: string;
 }
 
 export interface SoundSettings {
@@ -132,6 +133,7 @@ export const DEFAULT_SETTINGS: AppSettings = {
     shortRestMinutes: 5,
     longRestMinutes: 15,
     longRestInterval: 3,
+    resetTime: '00:00',
   },
   shortcuts: {
     toggleMainWindow: 'Alt+P',

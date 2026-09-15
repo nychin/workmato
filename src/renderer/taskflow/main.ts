@@ -3353,7 +3353,15 @@ window.addEventListener('keyup', (event) => {
       return;
     }
     if (action === 'toggle-pin') {
-      mutate(() => { data.pinnedCardId = data.pinnedCardId === card.id ? null : card.id; });
+      mutate(() => {
+        const wasPinned = data.pinnedCardId === card.id;
+        if (!wasPinned && data.pinnedCardId) {
+          const previous = data.cards.find((item) => item.id === data.pinnedCardId);
+          if (previous) previous.suspendedAt = now();
+        }
+        if (!wasPinned) card.suspendedAt = now();
+        data.pinnedCardId = wasPinned ? null : card.id;
+      });
       return;
     }
     if (action === 'toggle-subtask') {
@@ -3529,6 +3537,16 @@ window.addEventListener('keyup', (event) => {
         if (el) {
           if (resize.axis === 'width') el.style.width = `${card.noteWidth}px`;
           el.style.height = `${noteHeight(card, card.parentId ? noteWidth(card) : CARD_WIDTH, card.parentId ? 154 : CARD_WIDTH)}px`;
+          // 固定高度的独立便签编辑器必须填满正文容器并自行滚动。
+          // 否则选中文本后 textarea 保留原来的内容高度，父容器缩小时只会露出顶部几行。
+          if (resize.axis === 'height') {
+            const editor = el.querySelector<HTMLTextAreaElement>('[data-editor="body"]');
+            if (editor) {
+              editor.style.height = '100%';
+              editor.style.overflowY = 'auto';
+              editor.scrollTop = Math.min(editor.scrollTop, Math.max(0, editor.scrollHeight - editor.clientHeight));
+            }
+          }
         }
         if (resize.axis === 'height') layoutNoteCards();
       }
@@ -4021,11 +4039,11 @@ function wireKeyboard(): void {
 }
 
 async function start(): Promise<void> {
-  data = await window.taskFlowAPI.load();
+  const [initialData, initialSettings] = await Promise.all([window.taskFlowAPI.load(), window.settingsAPI.load()]);
+  data = initialData;
   if (pruneEmptyGroups()) scheduleSave(); // 一次性清理历史遗留的空群组（幽灵组）
   const expandedLegacyCards = expandLegacyCollapsedTaskCards();
   const restoredInitialViewport = restoreProjectTransform(data.activeProjectId);
-  const initialSettings = await window.settingsAPI.load();
   setLocale(initialSettings.language);
   applyLocaleToDocument();
   applyTheme(initialSettings.taskFlowTheme);

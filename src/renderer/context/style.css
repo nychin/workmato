@@ -1,0 +1,67 @@
+@font-face { font-family: ContextRounded; src: url('/ResourceHanRoundedCN-Normal.ttf'); font-display: swap; }
+@font-face { font-family: ContextRounded; src: url('/ResourceHanRoundedCN-Bold.ttf'); font-weight: 600; font-display: swap; }
+:root { font-family: ContextRounded, sans-serif; color: var(--ink); font-size: 12px; --ink: #665332; --line: #f6ce78; --paper: #fff2aa; }
+* { box-sizing: border-box; }
+body { margin: 0; overflow: hidden; background: transparent; }
+button, textarea, input { font: inherit; }
+button { display: grid; place-items: center; flex: none; width: 24px; height: 24px; padding: 2px; border: 0; border-radius: 2px; background: transparent; color: var(--line); cursor: pointer; }
+button:hover, button[aria-pressed="true"] { background: #f1cf7433; color: #c59c55; }
+button:focus-visible, input:focus-visible { outline: 1px solid #c59c55; outline-offset: -1px; }
+button:disabled { opacity: .4; cursor: default; }
+button[hidden] { display: none; }
+svg { width: 20px; height: 20px; fill: none; stroke: currentColor; stroke-width: 1.5; stroke-linejoin: miter; }
+#app { width: var(--window-width); height: var(--window-height); }
+#tomato { position: absolute; z-index: 2; top: 0; left: 0; width: 40px; height: 40px; padding: 0; background: transparent; }
+#tomato img { width: 34px; height: 36px; object-fit: contain; image-rendering: pixelated; pointer-events: none; transform: scale(1); transition: transform 120ms ease-out; }
+/* 固定素材为 39×33，自动素材为 34×34；保留各自原始宽度，避免宽图被 contain 压小。 */
+#tomato[aria-pressed="true"] img { width: 39px; }
+#tomato:hover img { transform: scale(1.06); }
+#tomato.pressing img { transform: scale(.9); }
+#tomato, #capture-drag { cursor: grab; touch-action: none; user-select: none; }
+#tomato.dragging, #capture-drag.dragging { cursor: grabbing; }
+#panel { position: absolute; left: var(--panel-left); top: var(--panel-top); width: var(--panel-width); height: var(--panel-height); display: grid; grid-template-columns: var(--panel-columns); background: var(--paper); border-radius: 7px; transform-origin: 8px 0; transform: scale(.06); opacity: 0; visibility: hidden; transition: transform 180ms ease, opacity 150ms ease, visibility 180ms; }
+.expanded #panel { transform: scale(1); opacity: 1; visibility: visible; }
+.notes-column, .editor-column, .scratch-column { min-width: 0; min-height: 0; position: relative; display: flex; flex-direction: column; }
+.notes-column { margin-top: 23px; }
+.notes-column::after { content: ''; position: absolute; right: 0; top: 0; bottom: 28px; border-right: 2px solid var(--line); }
+.editor-column { margin-top: 23px; }
+.scratch-column { margin: 1px 0 7px; border-left: 2px solid var(--line); }
+.notes-drag { position: absolute; top: -23px; left: 0; right: 0; height: 23px; cursor: grab; touch-action: none; user-select: none; }
+.notes-drag.dragging { cursor: grabbing; }
+#notes { flex: 1; min-height: 0; overflow: auto; scrollbar-width: thin; scrollbar-color: var(--line) transparent; mask-image: linear-gradient(to bottom, transparent, #000 var(--fade-top, 0px), #000 calc(100% - var(--fade-bottom, 0px)), transparent); }
+.note-row { display: flex; height: 19px; padding-left: 5px; padding-right: 1px; }
+.freshness { width: 14px; height: 19px; padding: 0; position: relative; }
+.freshness::after { content: ''; display: block; width: 5px; height: 12px; background: var(--fresh); }
+.stage--1 { --fresh: #f66a50; }.stage-0 { --fresh: #91c956; }.stage-1 { --fresh: #b3bd57; }.stage-2 { --fresh: #c4a15a; }
+.note-label { display: block; flex: 1; overflow: hidden; white-space: nowrap; text-overflow: clip; text-align: left; height: 19px; width: 0; padding-right: 0; color: var(--ink); font-size: 11px; font-weight: 600; }
+.note-label:hover { color: var(--ink); }
+.selected .note-label { border-right: 2px solid var(--line); background: #f5d68533; }
+textarea { display: block; flex: 1; width: 100%; min-height: 0; resize: none; border: 0; outline: none; background: transparent; color: var(--ink); font-weight: 600; padding: 0 8px 4px; line-height: 1.55; scrollbar-width: thin; scrollbar-color: var(--line) transparent; }
+textarea::placeholder { color: #968050; font-weight: 400; }
+textarea:disabled { background: transparent; }
+footer { height: 25px; flex: none; display: flex; align-items: center; justify-content: flex-end; padding-right: 3px; }
+.notes-column footer { justify-content: flex-start; gap: 4px; padding-left: 4px; }
+#archive { width: 24px; }
+#archive svg { width: 20px; height: 20px; }
+.scratch-column footer { margin-bottom: -7px; }
+header { display: flex; height: 28px; flex: none; align-items: center; padding: 0 12px 4px 7px; gap: 9px; }
+.scratch-column header { margin-bottom: -6px; }
+#passthrough { width: var(--switch-width); height: var(--switch-height); border-radius: 4px; }
+#passthrough[aria-pressed="true"] { color: #fff8de; background: #e56945; box-shadow: inset 0 0 0 1px #b9482b; }
+#passthrough[aria-pressed="true"]:hover { background: #c95132; }
+.passthrough #panel, .passthrough #tomato { pointer-events: none; }
+.passthrough #passthrough { pointer-events: auto; }
+#passthrough svg { fill: currentColor; stroke-width: 0; width: 16px; }
+input[type="range"] { appearance: none; flex: 1; min-width: 0; width: 105px; height: 16px; margin: 0; background: transparent; cursor: pointer; }
+input[type="range"]::-webkit-slider-runnable-track { height: 2px; background: var(--line); }
+input[type="range"]::-webkit-slider-thumb { appearance: none; width: 4px; height: 8px; margin-top: -3px; background: #b89c67; border: none; border-radius: 0; }
+#status { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-size: 10px; margin-right: auto; padding-left: 4px; }
+.capture { background: var(--paper); width: 440px; height: 150px; border-radius: 7px; padding: 24px 12px 12px; display: flex; flex-direction: column; }
+#capture-drag { position: absolute; top: 0; left: 0; width: 440px; height: 22px; display: grid; place-items: center; }
+#capture-drag span { width: 32px; height: 3px; border-radius: 2px; background: var(--line); pointer-events: none; }
+.capture textarea { padding: 2px; font-size: 15px; }
+.capture footer { height: 24px; }
+.capture button { width: 44px; color: #9d864f; }
+#capture-close { position: absolute; z-index: 1; top: 1px; left: 4px; width: 24px; height: 22px; }
+#capture-close svg { width: 16px; height: 16px; }
+@media (prefers-reduced-motion: reduce) { #panel, #tomato img { transition: none; } }

@@ -8,14 +8,14 @@ export const GUIDE_SEED_ZH_CN: TaskFlowData = {
       "id": "project_guide",
       "title": "说明",
       "archived": false,
-      "createdAt": "2026-08-29T11:59:26.588Z",
-      "updatedAt": "2026-08-29T11:59:26.588Z",
-      "pinnedAt": "2026-08-30T15:28:02.685Z",
-      "sortOrder": 120,
+      "createdAt": "2026-09-14T13:53:50.427Z",
+      "updatedAt": "2026-09-14T13:53:50.427Z",
+      "pinnedAt": "2026-09-14T14:46:04.566Z",
+      "sortOrder": 70,
       "viewport": {
-        "x": 1108.96899176291,
-        "y": -467.4136920434581,
-        "zoom": 0.45552970009762717
+        "x": 1120.9962423824581,
+        "y": -214.80218010372278,
+        "zoom": 0.5292500041531685
       },
       "archivedAt": null,
       "sidebarGroupId": null
@@ -24,7 +24,7 @@ export const GUIDE_SEED_ZH_CN: TaskFlowData = {
   "projectGroups": [],
   "cards": [
     {
-      "id": "card_70972ae0-55cb-4f67-9eb8-94d7acc9aab6",
+      "id": "card_88172c00-c052-4d90-b91b-f49b1b049022",
       "projectId": "project_guide",
       "title": "添加卡片",
       "markdown": "- [ ] 使用Shift+A添加卡片\n- [ ] 双击画布空白处添加卡片\n- [ ] 从绿色连接点拖出连接线到画布空白处添加卡片\n- [ ] 在选中卡片的状态时按Tab 键来添加卡片",
@@ -32,11 +32,12 @@ export const GUIDE_SEED_ZH_CN: TaskFlowData = {
       "y": -380.6994217315473,
       "collapsed": false,
       "completed": false,
-      "createdAt": "2026-08-30T15:28:02.685Z",
-      "updatedAt": "2026-08-30T15:28:02.685Z"
+      "createdAt": "2026-09-14T14:46:04.566Z",
+      "updatedAt": "2026-09-14T14:46:04.566Z",
+      "noteCollapsed": false
     },
     {
-      "id": "card_44ae7d91-8797-42df-8920-bb3bde16a09b",
+      "id": "card_93a348ca-3936-4197-8cca-bad05079f5f7",
       "projectId": "project_guide",
       "title": "卡片的快速切换",
       "markdown": "- [ ] 使用ctrl+左右方向键快速移动",
@@ -44,11 +45,12 @@ export const GUIDE_SEED_ZH_CN: TaskFlowData = {
       "y": 102.38786662915547,
       "collapsed": false,
       "completed": false,
-      "createdAt": "2026-08-30T15:28:02.685Z",
-      "updatedAt": "2026-08-30T15:28:02.685Z"
+      "createdAt": "2026-09-14T14:46:04.566Z",
+      "updatedAt": "2026-09-14T14:46:04.566Z",
+      "noteCollapsed": false
     },
     {
-      "id": "card_d9ab0d7a-283f-4394-a51b-c6e6e0c16412",
+      "id": "card_5633d225-73b0-499a-8e50-72a266b007aa",
       "projectId": "project_guide",
       "title": "新任务",
       "markdown": "- [ ] ",
@@ -56,11 +58,12 @@ export const GUIDE_SEED_ZH_CN: TaskFlowData = {
       "y": 101.91864463036003,
       "collapsed": false,
       "completed": false,
-      "createdAt": "2026-08-30T15:28:02.685Z",
-      "updatedAt": "2026-08-30T15:28:02.685Z"
+      "createdAt": "2026-09-14T14:46:04.566Z",
+      "updatedAt": "2026-09-14T14:46:04.566Z",
+      "noteCollapsed": false
     },
     {
-      "id": "card_086af212-5ff6-4e05-835b-28e995e27f20",
+      "id": "card_a7265742-016e-4b5b-897d-4adea32aabb3",
       "projectId": "project_guide",
       "title": "新任务",
       "markdown": "- [ ] ",
@@ -68,11 +71,12 @@ export const GUIDE_SEED_ZH_CN: TaskFlowData = {
       "y": 101.91864463036003,
       "collapsed": false,
       "completed": false,
-      "createdAt": "2026-08-30T15:28:02.685Z",
-      "updatedAt": "2026-08-30T15:28:02.685Z"
+      "createdAt": "2026-09-14T14:46:04.566Z",
+      "updatedAt": "2026-09-14T14:46:04.566Z",
+      "noteCollapsed": false
     },
     {
-      "id": "card_6d4d871b-9b8c-47d9-a8f4-98496d2e39eb",
+      "id": "card_29409c05-731d-4323-ace2-52d5d4d44be9",
       "projectId": "project_guide",
       "title": "新任务",
       "markdown": "- [ ] ",
@@ -80,11 +84,12 @@ export const GUIDE_SEED_ZH_CN: TaskFlowData = {
       "y": 99.99199877388915,
       "collapsed": false,
       "completed": false,
-      "createdAt": "2026-08-30T15:28:02.685Z",
-      "updatedAt": "2026-08-30T15:28:02.685Z"
+      "createdAt": "2026-09-14T14:46:04.566Z",
+      "updatedAt": "2026-09-14T14:46:04.566Z",
+      "noteCollapsed": false
     },
     {
-      "id": "card_2db5a074-437c-4ee6-880d-0cf478bfc3db",
+      "id": "card_87f8bab0-198a-4b90-b6b6-d61c64a984b0",
       "projectId": "project_guide",
       "title": "新任务",
       "markdown": "- [ ] ",
@@ -92,11 +97,12 @@ export const GUIDE_SEED_ZH_CN: TaskFlowData = {
       "y": 99.99199877388915,
       "collapsed": false,
       "completed": false,
-      "createdAt": "2026-08-30T15:28:02.685Z",
-      "updatedAt": "2026-08-30T15:28:02.685Z"
+      "createdAt": "2026-09-14T14:46:04.566Z",
+      "updatedAt": "2026-09-14T14:46:04.566Z",
+      "noteCollapsed": false
     },
     {
-      "id": "card_16c36c8f-5419-4074-bf56-83a0df64d369",
+      "id": "card_c72c6507-0130-4311-9f6b-6d8a66e9081c",
       "projectId": "project_guide",
       "title": "连接",
       "markdown": "- [ ] 左键将卡片A的连接点拖动至B的连接点处完成连接\n- [ ] 按住ctrl+右键来切断连接\n- [ ] 使用快捷键ctrl+X将卡片C从D、E中间摘下\n- [ ] 将卡片C拖动回连接线上即可再次连接\n- [ ] 按住键盘的C键进入快速连接模式，此时左键点击卡片可以快速的连接卡片",
@@ -104,23 +110,25 @@ export const GUIDE_SEED_ZH_CN: TaskFlowData = {
       "y": 642.0172301910197,
       "collapsed": false,
       "completed": false,
-      "createdAt": "2026-08-30T15:28:02.685Z",
-      "updatedAt": "2026-08-30T15:28:02.685Z"
+      "createdAt": "2026-09-14T14:46:04.566Z",
+      "updatedAt": "2026-09-14T14:46:04.566Z",
+      "noteCollapsed": false
     },
     {
-      "id": "card_8016fde4-a804-46a8-9895-92e5eb10eea6",
+      "id": "card_ce4c9db1-bac1-4a29-9547-e6613e4aba06",
       "projectId": "project_guide",
       "title": "完成与挂起",
-      "markdown": "- [ ] 勾选卡片上方圆形选框即可将任务挂起至番茄钟\n- [ ] 勾选三角形按钮表示任务完成，番茄钟会同步播放动画",
+      "markdown": "- [ ] 勾选卡片上方圆形选框即可将任务挂起至番茄钟右侧的告示牌\n- [ ] 左键点击告示牌可以快速切换挂起任务\n- [ ] 勾选三角形按钮表示任务完成，番茄钟会同步播放动画",
       "x": -1595.9010874784528,
       "y": 40.20302734381954,
       "collapsed": false,
       "completed": false,
-      "createdAt": "2026-08-30T15:28:02.685Z",
-      "updatedAt": "2026-08-30T15:28:02.685Z"
+      "createdAt": "2026-09-14T14:46:04.566Z",
+      "updatedAt": "2026-09-14T14:46:04.566Z",
+      "noteCollapsed": false
     },
     {
-      "id": "card_5c9940f3-6372-4098-a6d2-43935db5560b",
+      "id": "card_fb218ad6-d5e2-4eaa-9f19-453a328f53d8",
       "projectId": "project_guide",
       "title": "快捷键",
       "markdown": "- [ ] 可以使用快捷键控制番茄钟的显隐和开始，默认为alt+P\n- [ ] 点击番茄蒂切换番茄钟的置顶状态\n- [ ] 使用ctrl+123……切换任务\n- [ ] 使用T键开闭左侧栏\n- [ ] 使用N键开闭右侧栏",
@@ -128,11 +136,12 @@ export const GUIDE_SEED_ZH_CN: TaskFlowData = {
       "y": 469.82799753349036,
       "collapsed": false,
       "completed": false,
-      "createdAt": "2026-08-30T15:28:02.685Z",
-      "updatedAt": "2026-08-30T15:28:02.685Z"
+      "createdAt": "2026-09-14T14:46:04.566Z",
+      "updatedAt": "2026-09-14T14:46:04.566Z",
+      "noteCollapsed": false
     },
     {
-      "id": "card_46673b56-d5cd-40cf-bb65-c655e9ee43e1",
+      "id": "card_a84ea1f6-14e2-4599-8124-15a4d102ad08",
       "projectId": "project_guide",
       "title": "A",
       "markdown": "- [ ] ",
@@ -140,11 +149,12 @@ export const GUIDE_SEED_ZH_CN: TaskFlowData = {
       "y": 459.5571037305066,
       "collapsed": false,
       "completed": false,
-      "createdAt": "2026-08-30T15:28:02.685Z",
-      "updatedAt": "2026-08-30T15:28:02.685Z"
+      "createdAt": "2026-09-14T14:46:04.566Z",
+      "updatedAt": "2026-09-14T14:46:04.566Z",
+      "noteCollapsed": false
     },
     {
-      "id": "card_963f4143-91e4-430a-96e2-78be15187b13",
+      "id": "card_d98b3fd7-78e2-40f2-b067-288247b339f5",
       "projectId": "project_guide",
       "title": "B",
       "markdown": "- [ ] ",
@@ -152,11 +162,12 @@ export const GUIDE_SEED_ZH_CN: TaskFlowData = {
       "y": 461.2668551226458,
       "collapsed": false,
       "completed": false,
-      "createdAt": "2026-08-30T15:28:02.685Z",
-      "updatedAt": "2026-08-30T15:28:02.685Z"
+      "createdAt": "2026-09-14T14:46:04.566Z",
+      "updatedAt": "2026-09-14T14:46:04.566Z",
+      "noteCollapsed": false
     },
     {
-      "id": "card_01ba1233-66a1-400d-94a7-b346ecd89e16",
+      "id": "card_1df5ea51-6ff8-42a3-9262-6e426c889ebf",
       "projectId": "project_guide",
       "title": "新任务",
       "markdown": "- [ ] ",
@@ -164,11 +175,12 @@ export const GUIDE_SEED_ZH_CN: TaskFlowData = {
       "y": 724.5340072602683,
       "collapsed": false,
       "completed": false,
-      "createdAt": "2026-08-30T15:28:02.685Z",
-      "updatedAt": "2026-08-30T15:28:02.685Z"
+      "createdAt": "2026-09-14T14:46:04.566Z",
+      "updatedAt": "2026-09-14T14:46:04.566Z",
+      "noteCollapsed": false
     },
     {
-      "id": "card_f7bb5da2-6667-4589-a662-4140f25212af",
+      "id": "card_479154f3-1edc-46d1-8303-33b894225261",
       "projectId": "project_guide",
       "title": "新任务",
       "markdown": "- [ ] ",
@@ -176,11 +188,12 @@ export const GUIDE_SEED_ZH_CN: TaskFlowData = {
       "y": 723.1839193005881,
       "collapsed": false,
       "completed": false,
-      "createdAt": "2026-08-30T15:28:02.685Z",
-      "updatedAt": "2026-08-30T15:28:02.685Z"
+      "createdAt": "2026-09-14T14:46:04.566Z",
+      "updatedAt": "2026-09-14T14:46:04.566Z",
+      "noteCollapsed": false
     },
     {
-      "id": "card_8d92d16c-24dd-4536-ac3c-086c409d59dd",
+      "id": "card_05d63c23-30ef-45b8-9ce0-2d9b94ecb39d",
       "projectId": "project_guide",
       "title": "新任务",
       "markdown": "- [ ] ",
@@ -188,11 +201,12 @@ export const GUIDE_SEED_ZH_CN: TaskFlowData = {
       "y": 877.093946704121,
       "collapsed": false,
       "completed": false,
-      "createdAt": "2026-08-30T15:28:02.685Z",
-      "updatedAt": "2026-08-30T15:28:02.685Z"
+      "createdAt": "2026-09-14T14:46:04.566Z",
+      "updatedAt": "2026-09-14T14:46:04.566Z",
+      "noteCollapsed": false
     },
     {
-      "id": "card_b6e45e09-1a9b-4709-818d-5f39c2cbed99",
+      "id": "card_b88dae5c-e9c1-4596-9ad5-4d93c1591b51",
       "projectId": "project_guide",
       "title": "新任务",
       "markdown": "- [ ] ",
@@ -200,11 +214,12 @@ export const GUIDE_SEED_ZH_CN: TaskFlowData = {
       "y": 878.4440346638012,
       "collapsed": false,
       "completed": false,
-      "createdAt": "2026-08-30T15:28:02.685Z",
-      "updatedAt": "2026-08-30T15:28:02.685Z"
+      "createdAt": "2026-09-14T14:46:04.566Z",
+      "updatedAt": "2026-09-14T14:46:04.566Z",
+      "noteCollapsed": false
     },
     {
-      "id": "card_57f1069a-ff4c-40b3-bbe0-1ceb1768ac26",
+      "id": "card_a7b2f0ac-cc77-4905-8b12-f6c161740b23",
       "projectId": "project_guide",
       "title": "新任务",
       "markdown": "- [ ] ",
@@ -212,11 +227,12 @@ export const GUIDE_SEED_ZH_CN: TaskFlowData = {
       "y": 1032.3540620673343,
       "collapsed": false,
       "completed": false,
-      "createdAt": "2026-08-30T15:28:02.685Z",
-      "updatedAt": "2026-08-30T15:28:02.685Z"
+      "createdAt": "2026-09-14T14:46:04.566Z",
+      "updatedAt": "2026-09-14T14:46:04.566Z",
+      "noteCollapsed": false
     },
     {
-      "id": "card_9f0483f5-74a2-4364-a9ee-d68d525a7e7d",
+      "id": "card_d98a2baf-80cc-4116-8bac-a7656595d3a8",
       "projectId": "project_guide",
       "title": "新任务",
       "markdown": "- [ ] ",
@@ -224,11 +240,12 @@ export const GUIDE_SEED_ZH_CN: TaskFlowData = {
       "y": 1032.3540620673343,
       "collapsed": false,
       "completed": false,
-      "createdAt": "2026-08-30T15:28:02.685Z",
-      "updatedAt": "2026-08-30T15:28:02.685Z"
+      "createdAt": "2026-09-14T14:46:04.566Z",
+      "updatedAt": "2026-09-14T14:46:04.566Z",
+      "noteCollapsed": false
     },
     {
-      "id": "card_e18b00d8-3e4b-46da-b709-93752c0f18cb",
+      "id": "card_729b81d6-33b7-4aa5-b44f-96f207f1a001",
       "projectId": "project_guide",
       "title": "D",
       "markdown": "- [ ] ",
@@ -236,11 +253,12 @@ export const GUIDE_SEED_ZH_CN: TaskFlowData = {
       "y": 722.5838802073968,
       "collapsed": false,
       "completed": false,
-      "createdAt": "2026-08-30T15:28:02.685Z",
-      "updatedAt": "2026-08-30T15:28:02.685Z"
+      "createdAt": "2026-09-14T14:46:04.566Z",
+      "updatedAt": "2026-09-14T14:46:04.566Z",
+      "noteCollapsed": false
     },
     {
-      "id": "card_4fe5f3c5-5398-416f-994f-9242b68ebaa7",
+      "id": "card_eb30d76e-4a88-4ad2-baf7-347978877d1d",
       "projectId": "project_guide",
       "title": "C",
       "markdown": "- [ ] ",
@@ -248,11 +266,12 @@ export const GUIDE_SEED_ZH_CN: TaskFlowData = {
       "y": 720.2033564076678,
       "collapsed": false,
       "completed": false,
-      "createdAt": "2026-08-30T15:28:02.685Z",
-      "updatedAt": "2026-08-30T15:28:02.685Z"
+      "createdAt": "2026-09-14T14:46:04.566Z",
+      "updatedAt": "2026-09-14T14:46:04.566Z",
+      "noteCollapsed": false
     },
     {
-      "id": "card_d07b0797-de0f-4dd6-89f3-882c08796480",
+      "id": "card_11c9bdd6-7d54-44e6-be5d-385655a0377e",
       "projectId": "project_guide",
       "title": "E",
       "markdown": "- [ ] ",
@@ -260,11 +279,12 @@ export const GUIDE_SEED_ZH_CN: TaskFlowData = {
       "y": 720.9171049485326,
       "collapsed": false,
       "completed": false,
-      "createdAt": "2026-08-30T15:28:02.685Z",
-      "updatedAt": "2026-08-30T15:28:02.685Z"
+      "createdAt": "2026-09-14T14:46:04.566Z",
+      "updatedAt": "2026-09-14T14:46:04.566Z",
+      "noteCollapsed": false
     },
     {
-      "id": "card_42e51928-3b2d-4c83-8c2a-6e6b309b4b00",
+      "id": "card_016d654f-0337-4305-9ec1-47b7bf0f6b7c",
       "projectId": "project_guide",
       "title": "附属便签",
       "markdown": "- [ ] 在选中卡片G的状态（非编辑状态）按下回车可以为其添加附属便签\n- [ ] 便签可以在文本和涂鸦两种模式中切换\n- [ ] 涂鸦模式时长按左键为画笔，长按右键为橡皮",
@@ -272,11 +292,12 @@ export const GUIDE_SEED_ZH_CN: TaskFlowData = {
       "y": 1368.8283397874848,
       "collapsed": false,
       "completed": false,
-      "createdAt": "2026-08-30T15:28:02.685Z",
-      "updatedAt": "2026-08-30T15:28:02.685Z"
+      "createdAt": "2026-09-14T14:46:04.566Z",
+      "updatedAt": "2026-09-14T14:46:04.566Z",
+      "noteCollapsed": false
     },
     {
-      "id": "card_bc157a1b-c780-4665-98fc-c533a8564be3",
+      "id": "card_069949f7-2c9e-4ccd-ac1d-e3ff253d65b5",
       "projectId": "project_guide",
       "title": "G",
       "markdown": "- [ ] ",
@@ -284,11 +305,12 @@ export const GUIDE_SEED_ZH_CN: TaskFlowData = {
       "y": 1497.5875019715295,
       "collapsed": false,
       "completed": false,
-      "createdAt": "2026-08-30T15:28:02.685Z",
-      "updatedAt": "2026-08-30T15:28:02.685Z"
+      "createdAt": "2026-09-14T14:46:04.566Z",
+      "updatedAt": "2026-09-14T14:46:04.566Z",
+      "noteCollapsed": false
     },
     {
-      "id": "card_26f1ca31-3d26-4a46-9686-9d951e5d8435",
+      "id": "card_babbce1d-a30a-4c8d-b3b3-c56371cdc204",
       "projectId": "project_guide",
       "title": "便签",
       "markdown": "通过ctrl+shift+A在画布上添加便签\n将其拖动到任务卡片上时会挂靠为附属便签",
@@ -296,13 +318,14 @@ export const GUIDE_SEED_ZH_CN: TaskFlowData = {
       "y": 1857.10965493433,
       "collapsed": false,
       "completed": false,
-      "createdAt": "2026-08-30T15:28:02.685Z",
-      "updatedAt": "2026-08-30T15:28:02.685Z",
+      "createdAt": "2026-09-14T14:46:04.566Z",
+      "updatedAt": "2026-09-14T14:46:04.566Z",
       "cardType": "note",
-      "noteMode": "text"
+      "noteMode": "text",
+      "noteCollapsed": false
     },
     {
-      "id": "card_53f4f1d3-d862-42e9-abda-844c50e32c2b",
+      "id": "card_8104c11f-3b2f-4eb1-a64b-b1c1a5f53e31",
       "projectId": "project_guide",
       "title": "附属便签",
       "markdown": "",
@@ -310,15 +333,15 @@ export const GUIDE_SEED_ZH_CN: TaskFlowData = {
       "y": 1606.8283397874848,
       "collapsed": false,
       "completed": false,
-      "createdAt": "2026-08-30T15:28:02.685Z",
-      "updatedAt": "2026-08-30T15:28:02.685Z",
-      "parentId": "card_42e51928-3b2d-4c83-8c2a-6e6b309b4b00",
+      "createdAt": "2026-09-14T14:46:04.566Z",
+      "updatedAt": "2026-09-14T14:46:04.566Z",
+      "parentId": "card_016d654f-0337-4305-9ec1-47b7bf0f6b7c",
       "cardType": "note",
       "noteMode": "text",
       "noteCollapsed": true
     },
     {
-      "id": "card_mtei0tqs_11ost3w",
+      "id": "card_56bcd058-9522-4cfe-b33a-506e1470bb55",
       "projectId": "project_guide",
       "title": "画布",
       "markdown": "- [ ] 中键滚动缩放画布，按下拖动画布\n- [ ] ctrl+中键横滚画布\n- [ ] 可以在设置中调换上面两个操作",
@@ -326,11 +349,12 @@ export const GUIDE_SEED_ZH_CN: TaskFlowData = {
       "y": -374.450592580487,
       "collapsed": false,
       "completed": false,
-      "createdAt": "2026-08-30T15:28:02.685Z",
-      "updatedAt": "2026-08-30T15:28:02.685Z"
+      "createdAt": "2026-09-14T14:46:04.566Z",
+      "updatedAt": "2026-09-14T14:46:04.566Z",
+      "noteCollapsed": false
     },
     {
-      "id": "card_mtfqv0ql_t6u6h38",
+      "id": "card_4f90ee0b-4c17-490d-94c3-8696cccabb70",
       "projectId": "project_guide",
       "title": "分组",
       "markdown": "- [ ] ctrl+G可以为选中的卡片创建分组\n- [ ] ctrl+shift+G可以将选中的卡片解除分组\n- [ ] 将组外卡片拖到组内可以加入分组\n- [ ] 右键分组的空白处可以打开菜单",
@@ -338,12 +362,13 @@ export const GUIDE_SEED_ZH_CN: TaskFlowData = {
       "y": 2304.7134979023695,
       "collapsed": false,
       "completed": false,
-      "createdAt": "2026-08-30T15:28:02.685Z",
-      "updatedAt": "2026-08-30T15:28:02.685Z",
-      "groupId": "group_mtfqxdiy_945lah3"
+      "createdAt": "2026-09-14T14:46:04.566Z",
+      "updatedAt": "2026-09-14T14:46:04.566Z",
+      "noteCollapsed": false,
+      "groupId": "group_ff52495c-a5ff-4a7d-99c1-4ed6fc833653"
     },
     {
-      "id": "card_mtfqv20u_lqam8wr",
+      "id": "card_4e7cae4c-eb78-4084-8c7a-2639cf8e5959",
       "projectId": "project_guide",
       "title": "新任务",
       "markdown": "- [ ] ",
@@ -351,87 +376,93 @@ export const GUIDE_SEED_ZH_CN: TaskFlowData = {
       "y": 2310.363181607163,
       "collapsed": false,
       "completed": false,
-      "createdAt": "2026-08-30T15:28:02.685Z",
-      "updatedAt": "2026-08-30T15:28:02.685Z",
-      "groupId": "group_mtfqxdiy_945lah3"
+      "createdAt": "2026-09-14T14:46:04.566Z",
+      "updatedAt": "2026-09-14T14:46:04.566Z",
+      "noteCollapsed": false,
+      "groupId": "group_ff52495c-a5ff-4a7d-99c1-4ed6fc833653"
+    },
+    {
+      "id": "card_mu1cdq57_po2dbku",
+      "projectId": "project_guide",
+      "title": "临时便签",
+      "markdown": "- [ ] 一个独立的临时便签面板，使用快捷键alt+N打开，打开时默认是缩小状态，鼠标悬停在小番茄上时自动展开\n- [ ] 点一下小番茄会固定为展开状态，再点一下取消\n- [ ] 临时便签的条目具有过期机制，90分钟后会自动归档，点击条目的左侧端点可以为其保鲜\n- [ ] 最右侧的区域是独立的文本框，只能手动编辑\n- [ ] 按alt+Z键进行速记\n- [ ] 面板上的其它按钮分别是快捷复制、快捷删除、鼠标穿透、不透明度、已归档条目、新建",
+      "x": -1589.7656862097563,
+      "y": 1056.3495696813843,
+      "collapsed": false,
+      "completed": false,
+      "createdAt": "2026-09-14T14:46:04.566Z",
+      "updatedAt": "2026-09-14T14:46:04.566Z",
+      "noteCollapsed": false
     }
   ],
   "edges": [
     {
-      "id": "edge_30cebc3c-32ff-4462-a5ce-06ce89bde9a9",
+      "id": "edge_e8287eda-37e7-460c-b4ee-1d5f81207b58",
       "projectId": "project_guide",
-      "sourceId": "card_d9ab0d7a-283f-4394-a51b-c6e6e0c16412",
-      "targetId": "card_086af212-5ff6-4e05-835b-28e995e27f20",
-      "createdAt": "2026-08-29T11:59:26.588Z"
+      "sourceId": "card_5633d225-73b0-499a-8e50-72a266b007aa",
+      "targetId": "card_a7265742-016e-4b5b-897d-4adea32aabb3",
+      "createdAt": "2026-09-14T13:53:50.427Z"
     },
     {
-      "id": "edge_cb1611d4-1e2c-461d-861e-4d8ff628dea0",
+      "id": "edge_ed3a38fe-b02e-4973-9de1-f75cec3071f4",
       "projectId": "project_guide",
-      "sourceId": "card_086af212-5ff6-4e05-835b-28e995e27f20",
-      "targetId": "card_6d4d871b-9b8c-47d9-a8f4-98496d2e39eb",
-      "createdAt": "2026-08-29T11:59:26.588Z"
+      "sourceId": "card_a7265742-016e-4b5b-897d-4adea32aabb3",
+      "targetId": "card_29409c05-731d-4323-ace2-52d5d4d44be9",
+      "createdAt": "2026-09-14T13:53:50.427Z"
     },
     {
-      "id": "edge_e038f3db-42b8-48a0-b481-716afa5f0e72",
+      "id": "edge_c5f4f4c7-69f1-47be-8f61-d3ae3a8b65e3",
       "projectId": "project_guide",
-      "sourceId": "card_6d4d871b-9b8c-47d9-a8f4-98496d2e39eb",
-      "targetId": "card_2db5a074-437c-4ee6-880d-0cf478bfc3db",
-      "createdAt": "2026-08-29T11:59:26.588Z"
+      "sourceId": "card_29409c05-731d-4323-ace2-52d5d4d44be9",
+      "targetId": "card_87f8bab0-198a-4b90-b6b6-d61c64a984b0",
+      "createdAt": "2026-09-14T13:53:50.427Z"
     },
     {
-      "id": "edge_dd5adb6a-4e82-4671-bc09-a32cd4700656",
+      "id": "edge_bda41949-4260-461f-ac03-58885d5739d4",
       "projectId": "project_guide",
-      "sourceId": "card_44ae7d91-8797-42df-8920-bb3bde16a09b",
-      "targetId": "card_d9ab0d7a-283f-4394-a51b-c6e6e0c16412",
-      "createdAt": "2026-08-29T11:59:26.588Z"
+      "sourceId": "card_93a348ca-3936-4197-8cca-bad05079f5f7",
+      "targetId": "card_5633d225-73b0-499a-8e50-72a266b007aa",
+      "createdAt": "2026-09-14T13:53:50.427Z"
     },
     {
-      "id": "edge_0f4547b2-8386-49ea-82dd-cc7c1b208045",
+      "id": "edge_f7c5a139-05d6-4f34-859d-fd1b301fee23",
       "projectId": "project_guide",
-      "sourceId": "card_01ba1233-66a1-400d-94a7-b346ecd89e16",
-      "targetId": "card_f7bb5da2-6667-4589-a662-4140f25212af",
-      "createdAt": "2026-08-29T11:59:26.588Z"
+      "sourceId": "card_1df5ea51-6ff8-42a3-9262-6e426c889ebf",
+      "targetId": "card_479154f3-1edc-46d1-8303-33b894225261",
+      "createdAt": "2026-09-14T13:53:50.427Z"
     },
     {
-      "id": "edge_ffc7c9aa-f9b8-4ec1-9e03-7d050973afdb",
+      "id": "edge_eb33313e-af4b-402b-a2cd-026a7fd5a40d",
       "projectId": "project_guide",
-      "sourceId": "card_8d92d16c-24dd-4536-ac3c-086c409d59dd",
-      "targetId": "card_b6e45e09-1a9b-4709-818d-5f39c2cbed99",
-      "createdAt": "2026-08-29T11:59:26.588Z"
+      "sourceId": "card_05d63c23-30ef-45b8-9ce0-2d9b94ecb39d",
+      "targetId": "card_b88dae5c-e9c1-4596-9ad5-4d93c1591b51",
+      "createdAt": "2026-09-14T13:53:50.427Z"
     },
     {
-      "id": "edge_c0d3d960-1c82-4ffc-b4e4-f685535e0713",
+      "id": "edge_42e1dfa7-cc7b-48fe-b708-c5093da4e538",
       "projectId": "project_guide",
-      "sourceId": "card_57f1069a-ff4c-40b3-bbe0-1ceb1768ac26",
-      "targetId": "card_9f0483f5-74a2-4364-a9ee-d68d525a7e7d",
-      "createdAt": "2026-08-29T11:59:26.588Z"
+      "sourceId": "card_a7b2f0ac-cc77-4905-8b12-f6c161740b23",
+      "targetId": "card_d98a2baf-80cc-4116-8bac-a7656595d3a8",
+      "createdAt": "2026-09-14T13:53:50.427Z"
     },
     {
-      "id": "edge_b97902fb-91ce-4024-9429-10956b1cd691",
+      "id": "edge_baf80446-8577-4983-92bc-15b7d57b1369",
       "projectId": "project_guide",
-      "sourceId": "card_e18b00d8-3e4b-46da-b709-93752c0f18cb",
-      "targetId": "card_4fe5f3c5-5398-416f-994f-9242b68ebaa7",
-      "createdAt": "2026-08-29T11:59:26.588Z"
+      "sourceId": "card_729b81d6-33b7-4aa5-b44f-96f207f1a001",
+      "targetId": "card_eb30d76e-4a88-4ad2-baf7-347978877d1d",
+      "createdAt": "2026-09-14T13:53:50.427Z"
     },
     {
-      "id": "edge_56146a59-95b2-47ab-b287-e9af22d7f855",
+      "id": "edge_1920ec6a-8b94-46fa-8b26-c28ea52708ee",
       "projectId": "project_guide",
-      "sourceId": "card_4fe5f3c5-5398-416f-994f-9242b68ebaa7",
-      "targetId": "card_d07b0797-de0f-4dd6-89f3-882c08796480",
-      "createdAt": "2026-08-29T11:59:26.588Z"
+      "sourceId": "card_eb30d76e-4a88-4ad2-baf7-347978877d1d",
+      "targetId": "card_11c9bdd6-7d54-44e6-be5d-385655a0377e",
+      "createdAt": "2026-09-14T13:53:50.427Z"
     }
   ],
   "groups": [
     {
-      "id": "group_mtfi0rau_uajmzci",
-      "color": "#E880F1"
-    },
-    {
-      "id": "group_mtfnpo0q_inljy8i",
-      "color": "#83B8EA"
-    },
-    {
-      "id": "group_mtfqxdiy_945lah3",
+      "id": "group_ff52495c-a5ff-4a7d-99c1-4ed6fc833653",
       "color": "#83B8EA"
     }
   ],

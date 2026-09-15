@@ -33,7 +33,7 @@ function fillTimeButtonZones(
   }
 }
 
-export function generateHitmap(store: AssetStore, layout: LayoutConfig): Uint8Array {
+export function generateHitmap(store: AssetStore, layout: LayoutConfig, recentSelectionVisible = false): Uint8Array {
   const c = document.createElement('canvas');
   c.width = CANVAS_W;
   c.height = CANVAS_H;
@@ -51,11 +51,23 @@ export function generateHitmap(store: AssetStore, layout: LayoutConfig): Uint8Ar
   // 数字区域（用代表性数字合成命中范围）
   ['num_mt_3', 'num_mo_0', 'ui_colon', 'num_st_0', 'num_so_0'].forEach(draw);
   layout.btnKeys.forEach(draw);
+  if (recentSelectionVisible) {
+    const img = store.images.get('rock_billboard_select');
+    if (img) for (let i = 0; i < 6; i += 1) ctx.drawImage(img, 10, 110 + i * 43);
+  }
 
   const data = ctx.getImageData(0, 0, CANVAS_W, CANVAS_H).data;
   const hitmap = new Uint8Array(CANVAS_W * CANVAS_H);
   for (let i = 0; i < hitmap.length; i++) {
     hitmap[i] = data[i * 4 + 3] > 128 ? 1 : 0;
+  }
+  if (recentSelectionVisible) {
+    for (let i = 0; i < 6; i += 1) {
+      const top = 110 + i * 43;
+      for (let y = top; y < top + 33; y += 1) {
+        for (let x = 10; x < 113; x += 1) hitmap[y * CANVAS_W + x] = 1;
+      }
+    }
   }
 
   // 时间按钮热区外扩（与 buttons.ts hitTest 同参数）

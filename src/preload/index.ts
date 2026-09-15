@@ -4,6 +4,7 @@
  * 通过 contextBridge 暴露安全 API 给渲染进程
  */
 import { contextBridge, ipcRenderer } from 'electron';
+import type { ContextAPI } from '../shared/context';
 import type { TimerDisplayState, ButtonAction } from '../main/timer/types';
 import type { TaskFlowAPI, TaskFlowData } from '../shared/taskflow';
 import type {
@@ -12,6 +13,22 @@ import type {
   StatisticsDashboard,
   TaskFlowPreferences,
 } from '../shared/settings';
+
+const contextAPI: ContextAPI = {
+  ready: () => ipcRenderer.send('context:ready'),
+  load: () => ipcRenderer.invoke('context:load'),
+  change: (command) => ipcRenderer.invoke('context:change', command),
+  togglePin: () => ipcRenderer.send('context:pin'),
+  setPassthrough: (enabled) => ipcRenderer.send('context:passthrough', enabled),
+  closeCapture: () => ipcRenderer.send('context:close-capture'),
+  dragStart: () => ipcRenderer.send('context:drag-start'),
+  dragMove: () => ipcRenderer.send('context:drag-move'),
+  dragEnd: () => ipcRenderer.send('context:drag-end'),
+  onData: (callback) => { ipcRenderer.on('context:data', (_event, data) => callback(data)); },
+  onState: (callback) => { ipcRenderer.on('context:state', (_event, state) => callback(state)); },
+  onCapture: (callback) => { ipcRenderer.on('context:capture', () => callback()); },
+};
+contextBridge.exposeInMainWorld('contextAPI', contextAPI);
 
 export interface TomatoAPI {
   // ── 命中表 + 拖拽 ──
@@ -26,6 +43,8 @@ export interface TomatoAPI {
   toggleSettings: () => void;
   setWaitingDuration: (minutes: number) => void;
   onPinnedTaskTitle: (callback: (title: string) => void) => void;
+  onRecentSuspended: (callback: (items: Array<{ id: string; title: string }>) => void) => void;
+  selectSuspendedTask: (cardId: string | null) => void;
   onSettingsToggle: (callback: () => void) => void;
 
   // ── 过渡动画播完回调（P1 握手协议） ──
@@ -89,6 +108,10 @@ const api: TomatoAPI = {
   onPinnedTaskTitle: (callback) => {
     ipcRenderer.on('taskflow:pinned-title', (_event, data: { title: string }) => callback(data.title));
   },
+  onRecentSuspended: (callback) => {
+    ipcRenderer.on('taskflow:recent-suspended', (_event, items: Array<{ id: string; title: string }>) => callback(items));
+  },
+  selectSuspendedTask: (cardId) => ipcRenderer.send('taskflow:select-suspended', cardId),
   onSettingsToggle: (callback) => {
     ipcRenderer.on('settings:toggle', () => callback());
   },

@@ -8,6 +8,7 @@ import * as PIXI from 'pixi.js';
 export const CANVAS_W = 491;
 export const CANVAS_H = 407;
 const ASSET_BASE = './tomato_UI_asset';
+export const DAILY_COUNT_KEYS = Array.from({ length: 10 }, (_, index) => `rock_count_${index + 1}`);
 
 export interface Bbox {
   x: number;
@@ -31,6 +32,7 @@ export const ASSET_PATHS: Record<string, string> = {
   rock_base: '04_rock/rock.png',
   rock_billboard: '04_rock/billboard.png',
   rock_billboard_hover: '04_rock/billboard_02.png',
+  rock_billboard_select: '04_rock/billboard_select.png',
   rock_minimize: '04_rock/mushroom_minimize.png',
   rock_button: '04_rock/rock_button.png',
   rock_snail: '04_rock/snail.png',
@@ -71,6 +73,9 @@ export const ASSET_PATHS: Record<string, string> = {
   ui_colon: '01_button_number/number_colon.png',
   ui_cursor: '01_button_number/number_TextCursor.png',
 };
+
+// 太阳光芒 11 帧
+for (let count = 1; count <= 10; count++) ASSET_PATHS[`rock_count_${count}`] = `04_rock/count/${count}.png`;
 
 // 太阳光芒 11 帧
 for (let i = 1; i <= 11; i++) {

@@ -15,6 +15,8 @@ export interface TomatoAPI {
   toggleSettings: () => void;
   setWaitingDuration: (minutes: number) => void;
   onPinnedTaskTitle: (callback: (title: string) => void) => void;
+  onRecentSuspended: (callback: (items: Array<{ id: string; title: string }>) => void) => void;
+  selectSuspendedTask: (cardId: string | null) => void;
   onSettingsToggle: (callback: () => void) => void;
   /** 过渡动画播完回调（P1 握手协议） */
   transitionDone: (id: string) => void;
@@ -37,6 +39,7 @@ export interface TomatoAPI {
 
 declare global {
   interface Window {
+    contextAPI: import('../shared/context').ContextAPI;
     tomatoAPI: TomatoAPI;
     taskFlowAPI: TaskFlowAPI & {
       onFocusCard: (callback: (cardId: string) => void) => void;

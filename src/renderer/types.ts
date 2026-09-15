@@ -11,6 +11,7 @@ export interface TransitionInfo {
 
 /** 主进程广播的计时显示状态 */
 export interface TimerDisplayState {
+  dailyPomodoroCount: number;
   state: string;
   timerMode: string;
   minutes: number;

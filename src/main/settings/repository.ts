@@ -15,6 +15,7 @@ import {
   TaskFlowTheme,
 } from '../../shared/settings';
 import { detectAppLanguage } from '../../shared/i18n';
+import { validResetTime } from '../../shared/timer-day';
 
 export interface SettingsRepositoryOptions {
   dataDirectory?: string;
@@ -129,6 +130,7 @@ export function normalizeSettings(candidate: unknown): AppSettings {
       shortRestMinutes: integerInRange(timer.shortRestMinutes, defaults.timer.shortRestMinutes, 1, 99),
       longRestMinutes: integerInRange(timer.longRestMinutes, defaults.timer.longRestMinutes, 1, 180),
       longRestInterval: integerInRange(timer.longRestInterval, defaults.timer.longRestInterval, 1, 12),
+      resetTime: validResetTime(timer.resetTime) ? timer.resetTime : defaults.timer.resetTime,
     },
     shortcuts,
     enterSwap: candidate.enterSwap === true,

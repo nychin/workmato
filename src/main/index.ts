@@ -19,9 +19,13 @@ import * as path from 'path';
 import fs from 'node:fs/promises';
 import { pathToFileURL } from 'node:url';
 import { TimerFSM } from './timer/fsm';
+import { TimerDailyRepository } from './timer/daily-repository';
+import { getTimerDay } from '../shared/timer-day';
 import { TimerDisplayState, TimerState } from './timer/types';
 import { TaskFlowRepository } from './taskflow/repository';
 import { TaskFlowWindowController } from './taskflow/window';
+import { ContextRepository } from './context/repository';
+import { ContextWindowController } from './context/window';
 import { SettingsRepository } from './settings/repository';
 import { StatisticsRepository } from './statistics/repository';
 import { FocusSessionTracker } from './statistics/tracker';
@@ -70,6 +74,9 @@ let settingsWindowReady = false;
 let settingsWindowOpenRequested = false;
 let isQuitting = false;
 let tray: Tray | null = null;
+let contextWindow: ContextWindowController | null = null;
+let timerDailyRepository: TimerDailyRepository | null = null;
+let dailyResetTimer: ReturnType<typeof setInterval> | null = null;
 let hitmapBuffer: Buffer | null = null;
 let pollingTimer: ReturnType<typeof setInterval> | null = null;
 let isDragging = false;
@@ -250,7 +257,7 @@ function bringMainWindowToFront(): void {
 function hideMainWindow(): void {
   if (!mainWindow || mainWindow.isDestroyed() || !mainWindowShown) return;
   mainWindowShown = false;
-  mainWindow.setIgnoreMouseEvents(true, { forward: true });
+  mainWindow.setIgnoreMouseEvents(true, { forward: false });
   mainWindow.setOpacity(0);
 }
 
@@ -403,6 +410,8 @@ function createTray(): void {
 
 function buildTrayMenu(): Electron.Menu {
   return Menu.buildFromTemplate([
+    { label: t('context.tray'), click: () => contextWindow?.toggle() },
+    { label: t('context.restoreInteraction'), click: () => { contextWindow?.setPassthrough(false); contextWindow?.open(); } },
     {
       label: t('main.tray.show'),
       click: () => showMainWindow(true),
@@ -454,7 +463,9 @@ function checkHit(): void {
   if (shouldIgnore !== lastIgnoreState) {
     lastIgnoreState = shouldIgnore;
     if (shouldIgnore) {
-      mainWindow.setIgnoreMouseEvents(true, { forward: true });
+      // 命中恢复由 checkHit 轮询负责。穿透时不向透明窗口转发移动，
+      // 避免其 Chromium 光标更新与下方正在编辑的窗口争用系统指针。
+      mainWindow.setIgnoreMouseEvents(true, { forward: false });
     } else {
       mainWindow.setIgnoreMouseEvents(false);
     }
@@ -483,6 +494,15 @@ function toggleMainWindow(): void {
 
 function registerGlobalShortcuts(): void {
   globalShortcut.unregisterAll();
+  for (const [key, handler] of [
+    ['Alt+N', () => contextWindow?.toggle()],
+    ['Alt+Z', () => contextWindow?.openCapture()],
+  ] as const) {
+    if (!globalShortcut.register(key, handler)) {
+      console.warn(`[context] Global shortcut unavailable: ${key}`);
+      dialog.showErrorBox(t('context.shortcutErrorTitle'), t('context.shortcutError', { key }));
+    }
+  }
   const registrations: Array<['toggleMainWindow' | 'toggleTimer' | 'toggleTaskFlow', () => void]> = [
     ['toggleMainWindow', toggleMainWindow],
     ['toggleTimer', () => fsm.dispatchPrimaryShortcut()],
@@ -530,6 +550,7 @@ function applySettings(settings: AppSettings): void {
   registerGlobalShortcuts();
   sendToRenderer('settings:updated', settings);
   taskFlowWindow?.sendSettings(settings);
+  contextWindow?.sendSettings(settings);
   if (settingsWindow && !settingsWindow.isDestroyed()) {
     settingsWindow.webContents.send('settings:updated', settings);
   }
@@ -562,6 +583,16 @@ function currentFocusTask(): { taskCardId: string | null; taskTitle: string | nu
 function syncPinnedTaskTitle(data: TaskFlowData): void {
   pinnedTaskTitle = data.cards.find((card) => card.id === data.pinnedCardId)?.title ?? '';
   sendToRenderer('taskflow:pinned-title', { title: pinnedTaskTitle });
+  syncRecentSuspended(data);
+}
+
+function syncRecentSuspended(data: TaskFlowData): void {
+  const recent = data.cards
+    .filter((card) => card.suspendedAt && card.id !== data.pinnedCardId && !card.completed)
+    .sort((a, b) => (b.suspendedAt ?? '').localeCompare(a.suspendedAt ?? ''))
+    .slice(0, 6)
+    .map((card) => ({ id: card.id, title: card.title }));
+  sendToRenderer('taskflow:recent-suspended', recent);
 }
 
 interface BackupBundle {
@@ -674,6 +705,32 @@ ipcMain.on('drag:end', () => {
   // The tomato-clock snail button uses the legacy settings:toggle channel.
   // Keep it as an alias so both window entry points open the same settings window.
   ipcMain.on('settings:toggle', () => openSettingsWindow());
+  ipcMain.on('taskflow:select-suspended', async (_event, cardId: unknown) => {
+    if (cardId !== null && typeof cardId !== 'string') return;
+    const data = await taskFlowRepository.load();
+    const focusState = fsm.getDisplay().state;
+    const isFocusing = focusState === TimerState.Focus || focusState === TimerState.Prolongation || focusState === TimerState.RageFocus;
+    const previousPinnedId = data.pinnedCardId;
+    const previous = data.pinnedCardId ? data.cards.find((card) => card.id === data.pinnedCardId) : undefined;
+    if (previous) previous.suspendedAt = new Date().toISOString();
+    if (cardId === null) data.pinnedCardId = null;
+    else if (data.cards.some((card) => card.id === cardId && !card.completed)) data.pinnedCardId = cardId;
+    if (isFocusing && cardId !== previousPinnedId) {
+      const selected = cardId ? data.cards.find((card) => card.id === cardId) : undefined;
+      const project = selected ? data.projects.find((item) => item.id === selected.projectId) : undefined;
+      const segment = focusTracker.switchTask(fsm.getFocusElapsedSeconds(), {
+        taskCardId: selected?.id ?? null,
+        taskTitle: selected?.title ?? null,
+        projectId: project?.id ?? null,
+        projectTitle: project?.title ?? null,
+      });
+      if (segment && segment.focusSeconds > 0) await statisticsRepository.record(segment);
+    }
+    await taskFlowRepository.save(data);
+    taskFlowData = data;
+    syncPinnedTaskTitle(data);
+    taskFlowWindow?.reloadData();
+  });
   ipcMain.on('settings:open', () => openSettingsWindow());
   ipcMain.on('settings:close', () => hideSettingsWindow());
   ipcMain.handle('app:get-version', () => app.getVersion());
@@ -824,6 +881,7 @@ ipcMain.on('drag:end', () => {
   ipcMain.on('renderer:ready', () => {
     sendToRenderer('timer:state', fsm.getDisplay());
     sendToRenderer('taskflow:pinned-title', { title: pinnedTaskTitle });
+    if (taskFlowData) syncRecentSuspended(taskFlowData);
     sendToRenderer('settings:updated', appSettings);
   });
   ipcMain.on('renderer:initial-frame-ready', () => {
@@ -847,7 +905,19 @@ ipcMain.on('drag:end', () => {
 
 if (hasSingleInstanceLock) app.whenReady().then(async () => {
   registerIpc();
+  contextWindow = new ContextWindowController(new ContextRepository(app.getPath('userData')));
   applySettings(await settingsRepository.load());
+  timerDailyRepository = new TimerDailyRepository(app.getPath('userData'));
+  fsm.setOnDailyProgress((progress) => { void timerDailyRepository!.save(progress).catch((error) => console.error('[timer] Failed to save daily progress:', error)); });
+  let dailyProgress = await timerDailyRepository.load();
+  if (!dailyProgress) {
+    const day = getTimerDay(new Date(), appSettings.timer.resetTime);
+    const records = await statisticsRepository.listRecords();
+    dailyProgress = { version: 1, day, restsSinceLong: 0,
+      pomodoroCount: records.filter((record) => record.completed && getTimerDay(new Date(record.completedAt), appSettings.timer.resetTime) === day).length };
+  }
+  fsm.restoreDailyProgress(dailyProgress);
+  dailyResetTimer = setInterval(() => fsm.refreshDailyCycle(), 1000);
   taskFlowWindow = new TaskFlowWindowController({
     repository: taskFlowRepository,
     timerFSM: fsm,
@@ -859,6 +929,20 @@ if (hasSingleInstanceLock) app.whenReady().then(async () => {
     onDataChange: (data) => {
       taskFlowData = data;
       syncPinnedTaskTitle(data);
+    },
+    onPinnedTaskSwitch: async (previous, next) => {
+      const state = fsm.getDisplay().state;
+      if (previous.pinnedCardId === next.pinnedCardId) return;
+      if (state !== TimerState.Focus && state !== TimerState.Prolongation && state !== TimerState.RageFocus) return;
+      const selected = next.pinnedCardId ? next.cards.find((card) => card.id === next.pinnedCardId) : undefined;
+      const project = selected ? next.projects.find((item) => item.id === selected.projectId) : undefined;
+      const segment = focusTracker.switchTask(fsm.getFocusElapsedSeconds(), {
+        taskCardId: selected?.id ?? null,
+        taskTitle: selected?.title ?? null,
+        projectId: project?.id ?? null,
+        projectTitle: project?.title ?? null,
+      });
+      if (segment && segment.focusSeconds > 0) await statisticsRepository.record(segment);
     },
   });
   taskFlowData = await taskFlowRepository.load(app.getVersion(), appSettings.language);
@@ -873,11 +957,16 @@ if (hasSingleInstanceLock) app.whenReady().then(async () => {
   });
   createWindow();
   createTray();
+  contextWindow.open();
+  contextWindow.prepareCapture();
   if (showRequestedBySecondInstance) showMainWindow(true);
   // 主面板启动完成后在后台预热设置页，避免第一次点击时才初始化整个渲染进程。
   setTimeout(() => {
     if (!isQuitting) createSettingsWindow();
   }, 800);
+  setTimeout(() => {
+    if (!isQuitting) taskFlowWindow?.prepare();
+  }, 1400);
 }).catch((error) => {
   console.error('[main] Failed to initialize application:', error);
   dialog.showErrorBox(t('main.error.startFailed'), t('main.error.startFailedDetail', { message: error instanceof Error ? error.message : String(error) }));
@@ -894,8 +983,18 @@ app.on('window-all-closed', () => {
   // Windows 保持托盘
 });
 
-app.on('before-quit', () => {
+let contextFlushed = false;
+app.on('before-quit', (event) => {
+  if (contextWindow && !contextFlushed) {
+    event.preventDefault();
+    if (dailyResetTimer) { clearInterval(dailyResetTimer); dailyResetTimer = null; }
+    contextWindow.dispose();
+    void Promise.all([contextWindow.flush(), timerDailyRepository?.flush()]).finally(() => { contextFlushed = true; app.quit(); });
+    return;
+  }
   isQuitting = true;
+  taskFlowWindow?.prepareToQuit();
+  contextWindow?.dispose();
   stopPolling();
   globalShortcut.unregisterAll();
 });

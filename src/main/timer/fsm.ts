@@ -19,6 +19,7 @@ import {
   COUNTUP_MAX_SECONDS,
 } from './types';
 import type { TimerSettings } from '../../shared/settings';
+import { getTimerDay, type TimerDailyProgress } from '../../shared/timer-day';
 
 // ── 过渡注册表（P1） ──
 // key = "from->to"；命中即挂起计时、等待渲染进程播完过渡动画回调。
@@ -65,6 +66,12 @@ export class TimerFSM {
 
   // ── 小休计数（达到 configured long-rest interval 后下一次为长休） ──
   private restsSinceLong = 0;
+  private resetTime = '00:00';
+  private dailyDay = getTimerDay(new Date(), this.resetTime);
+  private dailyPomodoroCount = 0;
+  private onDailyProgress: ((progress: TimerDailyProgress) => void) | null = null;
+  private activeRestDay: string | null = null;
+  private activeRestWasLong = false;
   private previousState: TimerState = TimerState.Idle; // 庆祝前状态
 
   // ── 过渡锁（P1）：非 null 表示过渡动画播放中，计时挂起、输入锁定 ──
@@ -139,9 +146,46 @@ export class TimerFSM {
     this.onFocusEnded = cb;
   }
 
+  setOnDailyProgress(cb: (progress: TimerDailyProgress) => void): void { this.onDailyProgress = cb; }
+
+  restoreDailyProgress(progress: TimerDailyProgress | null): void {
+    this.dailyDay = getTimerDay(new Date(), this.resetTime);
+    this.dailyPomodoroCount = progress?.day === this.dailyDay ? progress.pomodoroCount : 0;
+    this.restsSinceLong = progress?.day === this.dailyDay ? progress.restsSinceLong : 0;
+    this.saveDailyProgress();
+  }
+
+  /** 主进程独立轮询：闲置、暂停、睡眠恢复后都能跨日，无需等待下一次专注。 */
+  refreshDailyCycle(): void {
+    this.synchronizeDay();
+    this.onTick?.(this.buildDisplay());
+  }
+
+  private synchronizeDay(): boolean {
+    const day = getTimerDay(new Date(), this.resetTime);
+    if (day === this.dailyDay) return false;
+    this.dailyDay = day;
+    this.dailyPomodoroCount = 0;
+    this.restsSinceLong = 0;
+    this.saveDailyProgress();
+    return true;
+  }
+
+  private saveDailyProgress(): void {
+    this.onDailyProgress?.({ version: 1, day: this.dailyDay, pomodoroCount: this.dailyPomodoroCount, restsSinceLong: this.restsSinceLong });
+  }
+
   /** 获取当前完整状态 */
   getDisplay(): TimerDisplayState {
     return this.buildDisplay();
+  }
+
+  /** 当前专注/延时已经过的秒数，用于任务切换时结算时间片。 */
+  getFocusElapsedSeconds(): number {
+    const mode = this.engine.getState().mode;
+    return mode === 'countdown' || mode === 'countup'
+      ? Math.max(0, Math.floor(this.engine.getState().elapsedSeconds))
+      : 0;
   }
 
   /** 获取当前置顶状态，供主进程同步原生窗口属性。 */
@@ -282,6 +326,8 @@ export class TimerFSM {
 
   /** Applies future-cycle timer settings without changing a running countdown. */
   applySettings(settings: TimerSettings): void {
+    this.resetTime = settings.resetTime;
+    this.refreshDailyCycle();
     this.focusSeconds = settings.focusMinutes * 60;
     this.restMode = settings.restMode;
     this.autoShortRestRatio = settings.autoShortRestRatio;
@@ -319,6 +365,7 @@ export class TimerFSM {
 
   /** Whether the next waiting-rest countdown is a long rest. */
   isLongRestDue(): boolean {
+    this.synchronizeDay();
     return this.restsSinceLong >= this.longRestInterval;
   }
 
@@ -339,7 +386,7 @@ export class TimerFSM {
       case TimerState.WaitingRest:
         // 先让倒计时拥有正确初始值，再切到休息状态。
         // 反过来会让渲染层先收到一次 Rest + 00:00，随后才收到真实休息时长，形成数字闪烁。
-        this.engine.startCountdown(this.getRestDuration());
+        this.startRestCountdown();
         this.transitionTo(TimerState.Rest, 'button:start');
         break;
       default: break;
@@ -422,9 +469,12 @@ export class TimerFSM {
   }
 
   private handleTimerComplete(): void {
+    this.synchronizeDay();
     switch (this.currentState) {
       case TimerState.Focus:
       case TimerState.RageFocus:
+        this.dailyPomodoroCount++;
+        this.saveDailyProgress();
         // 方式一鞭策：该次倒计时归零自动退出（后续走普通状态机）；
         // 持久鞭策不清除（闲置 start 再次进入鞭策）
         if (this.currentState === TimerState.RageFocus && this.rageMode === 'oneShot') {
@@ -489,7 +539,7 @@ export class TimerFSM {
         this.startFocusCountdown();
         break;
       case 'startRest':
-        this.engine.startCountdown(this.getRestDuration());
+        this.startRestCountdown();
         break;
       case 'startCountup':
         this.engine.startCountup();
@@ -504,11 +554,22 @@ export class TimerFSM {
 
   /** 记录一次休息完成：长休后计数归零，否则累加小休次数 */
   private countCompletedRest(): void {
-    const wasLong = this.restsSinceLong >= this.longRestInterval;
-    this.restsSinceLong = wasLong ? 0 : this.restsSinceLong + 1;
+    this.synchronizeDay();
+    // 重置点前开始的休息不带入新一天；长短休性质按开始时记录。
+    if (this.activeRestDay !== this.dailyDay) return;
+    this.restsSinceLong = this.activeRestWasLong ? 0 : this.restsSinceLong + 1;
+    this.saveDailyProgress();
+  }
+
+  private startRestCountdown(): void {
+    this.synchronizeDay();
+    this.activeRestDay = this.dailyDay;
+    this.activeRestWasLong = this.isLongRestDue();
+    this.engine.startCountdown(this.getRestDuration());
   }
 
   private getRestDuration(): number {
+    this.synchronizeDay();
     const automaticFocusBase = this.lastCompletedFocusSeconds
       + (this.includeProlongationInAutoRest ? this.lastProlongationSeconds : 0);
     const shortRest = this.restMode === 'auto'
@@ -536,6 +597,7 @@ export class TimerFSM {
   // ── private: 构建 Display ──
 
   private buildDisplay(): TimerDisplayState {
+    this.synchronizeDay();
     const config = STATE_CONFIG[this.currentState];
     const engineDisplay = this.engine.getDisplay();
 
@@ -568,6 +630,7 @@ export class TimerFSM {
     }
 
     return {
+      dailyPomodoroCount: this.dailyPomodoroCount,
       state: this.currentState,
       timerMode: config.timerMode,
       minutes,

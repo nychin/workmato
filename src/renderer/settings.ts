@@ -198,6 +198,12 @@ function timerPanel(): string {
         <input id="focus-minutes" type="number" min="1" max="99" value="${settings.timer.focusMinutes}" />
       </div>
     </section>
+    <section class="settings-card">
+      <div class="setting-row">
+        <label class="setting-row__label" for="timer-reset-time">${t('settings.timer.resetTime')}<span class="setting-row__hint">${t('settings.timer.resetTimeHint')}</span></label>
+        <input id="timer-reset-time" type="time" step="60" value="${settings.timer.resetTime}" />
+      </div>
+    </section>
     <section class="settings-card timer-rest-card">
       <h3>${t('settings.timer.breakLength')}</h3>
       <div class="rest-mode-row">
@@ -435,6 +441,7 @@ panelElement.addEventListener('change', (event) => {
   if (target.id === 'short-rest-minutes') updateNumber('short-rest-minutes', 'shortRestMinutes', 1, 99);
   if (target.id === 'long-rest-minutes') updateNumber('long-rest-minutes', 'longRestMinutes', 1, 180);
   if (target.id === 'long-rest-interval') updateNumber('long-rest-interval', 'longRestInterval', 1, 12);
+  if (target.id === 'timer-reset-time' && /^(?:[01]\d|2[0-3]):[0-5]\d$/.test(target.value)) { settings.timer.resetTime = target.value; void persist(); }
   if (target instanceof HTMLInputElement && target.id === 'enter-swap') { settings.enterSwap = target.checked; void persist(); }
   if (target instanceof HTMLInputElement && target.id === 'wheel-ctrl-swap') { settings.wheelCtrlSwap = target.checked; void persist(); }
   if (target instanceof HTMLInputElement && target.id === 'tomato-panel-scale') { void persist(); }

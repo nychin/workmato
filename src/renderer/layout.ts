@@ -5,7 +5,7 @@
  * fx 层独立于状态切换，保证点击动画在按钮消失后仍播放完。
  */
 import * as PIXI from 'pixi.js';
-import { AssetStore, measureOpaqueBbox, SUNLIGHT_KEYS } from './assets';
+import { AssetStore, measureOpaqueBbox, SUNLIGHT_KEYS, DAILY_COUNT_KEYS } from './assets';
 import { TimerDisplayState } from './types';
 import { BUTTON_DEFS, ROCK_INTERACTIVE_KEYS, TrackedButton } from './buttons';
 import { RecolorKit } from './recolor';
@@ -65,6 +65,7 @@ const BILLBOARD_PIXEL_SIZE = 2;
 export const ROCK_LAYER_KEYS = [
   'rock_close',
   'rock_base',
+  ...DAILY_COUNT_KEYS,
   'rock_billboard',
   'rock_minimize',
   'rock_button',
@@ -233,6 +234,7 @@ export class LayoutRenderer {
       const s = this.store.sprites.get(rk);
       if (s) rockCt.addChild(s);
     }
+    this.updateDailyCount(state.dailyPomodoroCount);
     this.renderPinnedTaskTitle();
 
     // ── body（鞭策：hand 隐藏——已集成到 02 表情层） ──
@@ -345,6 +347,14 @@ export class LayoutRenderer {
   }
 
   /** 每秒 tick：仅更新数字 */
+  updateDailyCount(count: number): void {
+    const visibleCount = Number.isFinite(count) ? Math.max(0, Math.min(10, Math.floor(count))) : 0;
+    DAILY_COUNT_KEYS.forEach((key, index) => {
+      const sprite = this.store.sprites.get(key);
+      if (sprite) sprite.visible = index < visibleCount;
+    });
+  }
+
   updateDigits(state: TimerDisplayState): void {
     this.renderDigits(state.minutes, state.seconds);
   }

@@ -7,7 +7,7 @@ import type { AppLanguage } from '../../shared/settings';
 import { getBundledGuideSeed } from './seed';
 
 const CURRENT_DATA_VERSION = 1 as const;
-const CURRENT_SCHEMA_VERSION = 7;
+const CURRENT_SCHEMA_VERSION = 8;
 
 type SqlValue = string | number | null;
 
@@ -198,6 +198,7 @@ export class TaskFlowRepository {
         note_height REAL,
         note_color TEXT,
         color_tag TEXT,
+        suspended_at TEXT,
         group_id TEXT
       );
       CREATE TABLE IF NOT EXISTS edges (
@@ -282,6 +283,11 @@ export class TaskFlowRepository {
       if (!projectColumns.includes('color_tag')) db.run('ALTER TABLE projects ADD COLUMN color_tag TEXT');
       return;
     }
+    if (version === 8) {
+      const cardColumns = rows(db, 'PRAGMA table_info(cards)').map((row) => asString(row.name));
+      if (!cardColumns.includes('suspended_at')) db.run('ALTER TABLE cards ADD COLUMN suspended_at TEXT');
+      return;
+    }
     throw new Error(`[taskflow] Missing migration for SQLite schema version ${version}.`);
   }
 
@@ -330,8 +336,8 @@ export class TaskFlowRepository {
         db.run(
           `INSERT INTO cards (
             id, project_id, title, markdown, x, y, collapsed, completed, created_at, updated_at,
-            parent_id, card_type, note_mode, drawing, note_collapsed, note_width, note_height, note_color, color_tag, group_id
-          ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+            parent_id, card_type, note_mode, drawing, note_collapsed, note_width, note_height, note_color, color_tag, suspended_at, group_id
+          ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
           [
             card.id,
             card.projectId,
@@ -352,6 +358,7 @@ export class TaskFlowRepository {
             nullable(card.noteHeight),
             nullable(card.noteColor),
             nullable(card.colorTag),
+            nullable(card.suspendedAt),
             nullable(card.groupId),
           ],
         );
@@ -428,7 +435,7 @@ export class TaskFlowRepository {
     const cards: TaskCard[] = rows(
       db,
       `SELECT id, project_id, title, markdown, x, y, collapsed, completed, created_at, updated_at,
-        parent_id, card_type, note_mode, drawing, note_collapsed, note_width, note_height, note_color, color_tag, group_id
+        parent_id, card_type, note_mode, drawing, note_collapsed, note_width, note_height, note_color, color_tag, suspended_at, group_id
        FROM cards`,
     ).map((row) => {
       const card: TaskCard = {
@@ -451,6 +458,7 @@ export class TaskFlowRepository {
       const noteHeight = asOptionalNumber(row.note_height);
       const noteColor = asOptionalString(row.note_color);
       const colorTag = asOptionalString(row.color_tag);
+      const suspendedAt = asOptionalString(row.suspended_at);
       const groupId = asOptionalString(row.group_id);
       if (parentId !== null) card.parentId = parentId;
       if (cardType === 'task' || cardType === 'note') card.cardType = cardType;
@@ -461,6 +469,7 @@ export class TaskFlowRepository {
       if (noteHeight !== undefined) card.noteHeight = noteHeight;
       if (noteColor !== null) card.noteColor = noteColor;
       if (colorTag !== null) card.colorTag = colorTag;
+      if (suspendedAt !== null) card.suspendedAt = suspendedAt;
       if (groupId !== null) card.groupId = groupId;
       return card;
     });
