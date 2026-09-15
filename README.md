@@ -10,13 +10,10 @@
 
 </div>
 
-# Working Tomato (Workmato)
-
-A pixel-art desktop tomato timer, paired with a task flow canvas — usually it is a transparent little desktop companion keeping you focused; when you need to plan, open the task canvas and lay out the flow. Both run independently, yet stay linked through the billboard.
-
+# Workmato
 ## Overview
 
-- Working Tomato is a desktop-pet style productivity tool. Its main panel is a pixel-art tomato timer, and there is also a task flow manager window.
+- Workmato is a desktop-pet style productivity tool. Its main panel is a pixel-art pomodoro timer, and there is also a task flow manager window.
 - **Languages**: English, Chinese, Japanese
 - **Requirements**: Windows 10 / 11 (64-bit). Built on Electron, cross-platform in principle.
 
@@ -48,6 +45,11 @@ A pixel-art desktop tomato timer, paired with a task flow canvas — usually it 
 **Statistics**
 - When the tomato timer and the task manager are used together, it records how long each stage of each task takes, so you can track how you actually work.
 
+**Quick notes**
+- A standalone panel for jotting down temporary work ideas. Entries auto-archive over time. The panel also supports auto-shrink, expand on hover, mouse click-through, and opacity adjustment.
+
+![](assets/临时便签.gif)
+
 **Celebration animation**
 - When a task is completed, the little tomato celebrates with you (while in a focus state).
 
@@ -62,7 +64,7 @@ A pixel-art desktop tomato timer, paired with a task flow canvas — usually it 
 
 ### Task flow manager
 
-![](assets/taskflow.png)
+![](assets/屏幕截图%202026-09-15%20174716.png)
 
 ### Statistics
 
