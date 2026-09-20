@@ -1,6 +1,6 @@
 {
   "name": "tomato-clock",
-  "version": "1.4.1",
+  "version": "1.4.2",
   "description": "像素风格工作番茄 + 任务流程管理器",
   "main": "dist/main/index.js",
   "scripts": {
@@ -37,6 +37,7 @@
       "createDesktopShortcut": true,
       "createStartMenuShortcut": true,
       "shortcutName": "工作番茄",
+      "include": "build/installer.nsh",
       "deleteAppDataOnUninstall": false,
       "runAfterFinish": true,
       "multiLanguageInstaller": true,

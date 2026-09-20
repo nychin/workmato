@@ -7,6 +7,7 @@
  * 占位符使用 {name} 形式，三语必须保留同名占位符（由单测校验）。
  */
 export const zhCN = {
+  'taskflow.menu.clearTag': '清除标签',
   "context.title": "临时便签",
   "context.saveError": "保存失败，请重试；当前输入仍保留",
   "context.captureDrag": "按住顶部拖动窗口",

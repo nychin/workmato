@@ -4,6 +4,7 @@ import type { DictKey } from './zh-CN';
  *  文体：UI 全体で丁寧語（です・ます）＋ボタンは体言止めで統一。
  *  「事项」→ 日本語では「項目」を採用。 */
 export const jaJP: Record<DictKey, string> = {
+  'taskflow.menu.clearTag': 'タグを解除',
   "context.title": "一時メモ",
   "context.saveError": "保存できませんでした。入力内容は保持されています。再試行してください。",
   "context.captureDrag": "上部をドラッグして移動",

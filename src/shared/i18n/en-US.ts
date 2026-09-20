@@ -2,6 +2,7 @@ import type { DictKey } from './zh-CN';
 
 /** English dictionary. Keys must match zh-CN exactly (compile-time enforced). */
 export const enUS: Record<DictKey, string> = {
+  'taskflow.menu.clearTag': 'Clear tag',
   "context.title": "Temporary notes",
   "context.saveError": "Could not save. Your text is retained; try again.",
   "context.captureDrag": "Drag the top to move the window",

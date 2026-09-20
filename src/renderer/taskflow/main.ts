@@ -1,5 +1,6 @@
 import type { TaskCard, TaskEdge, TaskFlowData, TaskProject, TaskProjectGroup } from '../../shared/taskflow';
 import { makeRoomForInsertedCard } from '../../shared/taskflow-layout';
+import { CONNECTION_HANDLE_OFFSET_Y, edgeGeometry } from '../../shared/taskflow-edge-geometry';
 import { getTaskFlowPreferences, type AppSettings, type TaskFlowPreferences } from '../../shared/settings';
 import { clientPointToViewport } from '../../shared/viewport-coordinates';
 import { getLocale, setLocale, t, type DictKey } from '../../shared/i18n';
@@ -569,18 +570,10 @@ function cardHeight(card: TaskCard): number {
 
 function connectionPoint(card: TaskCard, side: 'in' | 'out'): { x: number; y: number } {
   // 端点对齐卡片两侧常驻连接点的中轴（与 CSS .connection-handle 保持一致：top:23.1, height:37.8）
-  const handleOffsetY = 23.1 + 37.8 / 2;
   return {
     x: card.x + (side === 'out' ? CARD_WIDTH : 0),
-    y: card.y + handleOffsetY,
+    y: card.y + CONNECTION_HANDLE_OFFSET_Y,
   };
-}
-
-function edgePath(source: { x: number; y: number }, target: { x: number; y: number }): string {
-  // 控制点始终沿连接点"向外"方向延伸：source 是 out（卡片右缘）向右，target 是 in（卡片左缘）向左。
-  // 这样无论两卡在 x/y 轴如何错位，曲线都先从连接点向外伸出，不会钻回卡片内部被遮挡。
-  const distance = Math.max(80, Math.abs(target.x - source.x) * 0.45);
-  return `M ${source.x} ${source.y} C ${source.x + distance} ${source.y}, ${target.x - distance} ${target.y}, ${target.x} ${target.y}`;
 }
 
 /** 项目排序：置顶的排最前（多个置顶按 pinnedAt 倒序，后置顶优先），其余按 sortOrder 降序 */
@@ -918,25 +911,10 @@ function edgeAtWorldPoint(point: { x: number; y: number }): TaskEdge | undefined
     const source = cards.get(edge.sourceId);
     const target = cards.get(edge.targetId);
     if (!source || !target || !isTaskCard(source) || !isTaskCard(target)) continue;
-    const start = connectionPoint(source, 'out');
-    const end = connectionPoint(target, 'in');
-    const distance = Math.max(80, Math.abs(end.x - start.x) * 0.45);
-    const controlStart = { x: start.x + distance, y: start.y };
-    const controlEnd = { x: end.x - distance, y: end.y };
-    const curveLengthEstimate = Math.hypot(controlStart.x - start.x, controlStart.y - start.y)
-      + Math.hypot(controlEnd.x - controlStart.x, controlEnd.y - controlStart.y)
-      + Math.hypot(end.x - controlEnd.x, end.y - controlEnd.y);
-    const samples = Math.min(320, Math.max(32, Math.ceil(curveLengthEstimate / 8)));
-    let previous = start;
-    for (let index = 1; index <= samples; index += 1) {
-      const t = index / samples;
-      const inverse = 1 - t;
-      const current = {
-        x: inverse ** 3 * start.x + 3 * inverse ** 2 * t * controlStart.x + 3 * inverse * t ** 2 * controlEnd.x + t ** 3 * end.x,
-        y: inverse ** 3 * start.y + 3 * inverse ** 2 * t * controlStart.y + 3 * inverse * t ** 2 * controlEnd.y + t ** 3 * end.y,
-      };
-      if (pointSegmentDistance(point, previous, current) <= hitRadius) return edge;
-      previous = current;
+    // 与 renderEdges 复用同一份几何，命中范围自动跟随实际线形。
+    const { points } = edgeGeometry(connectionPoint(source, 'out'), connectionPoint(target, 'in'));
+    for (let index = 1; index < points.length; index += 1) {
+      if (pointSegmentDistance(point, points[index - 1], points[index]) <= hitRadius) return edge;
     }
   }
   return undefined;
@@ -1250,7 +1228,7 @@ function renderEdges(horizontalOffsets: ReadonlyMap<string, number> = new Map())
     const linkedToSelection = sourceSelected || targetSelected;
     const sourcePoint = connectionPoint({ ...source, x: source.x + (horizontalOffsets.get(source.id) ?? 0) }, 'out');
     const targetPoint = connectionPoint({ ...target, x: target.x + (horizontalOffsets.get(target.id) ?? 0) }, 'in');
-    const path = edgePath(sourcePoint, targetPoint);
+    const path = edgeGeometry(sourcePoint, targetPoint).path;
     const gradientId = `linked-edge-${edge.id}`;
     if (linkedToSelection) {
       const stops = sourceSelected && targetSelected
@@ -1272,8 +1250,8 @@ function renderEdges(horizontalOffsets: ReadonlyMap<string, number> = new Map())
     const source = cards.get(connectionState.sourceId);
     if (source) {
       const path = connectionState.sourceSide === 'out'
-        ? edgePath(connectionPoint(source, 'out'), connectionState.pointer)
-        : edgePath(connectionState.pointer, connectionPoint(source, 'in'));
+        ? edgeGeometry(connectionPoint(source, 'out'), connectionState.pointer).path
+        : edgeGeometry(connectionState.pointer, connectionPoint(source, 'in')).path;
       preview = `<path class="connection-preview" d="${path}"></path>`;
     }
   }
@@ -1714,7 +1692,7 @@ function setProjectColorTag(projectId: string, color: string | null): void {
 function showProjectColorTagMenu(clientX: number, clientY: number, projectId: string): void {
   openContextMenu(clientX, clientY, [
     ...PROJECT_TAG_COLORS.map((color) => ({ label: color, color, action: () => setProjectColorTag(projectId, color) })),
-    { label: '清除标签', action: () => setProjectColorTag(projectId, null) },
+    { label: t('taskflow.menu.clearTag'), color: 'linear-gradient(135deg, #fff 44%, #e34b44 45%, #e34b44 55%, #fff 56%)', action: () => setProjectColorTag(projectId, null) },
   ]);
 }
 
@@ -2841,7 +2819,7 @@ function showProjectContextMenu(clientX: number, clientY: number, projectId: str
     .map((group) => ({ label: t('taskflow.menu.moveToGroup', { title: group.title }), action: () => moveProjectToGroup(projectId, group.id) }));
   const items = [
     ...PROJECT_TAG_COLORS.map((color) => ({ label: color, color, action: () => setProjectColorTag(projectId, color) })),
-    { label: '清除标签', action: () => setProjectColorTag(projectId, null) },
+    { label: t('taskflow.menu.clearTag'), color: 'linear-gradient(135deg, #fff 44%, #e34b44 45%, #e34b44 55%, #fff 56%)', action: () => setProjectColorTag(projectId, null) },
     { label: project.pinnedAt ? t('taskflow.menu.unpin') : t('taskflow.menu.pin'), action: () => toggleProjectPin(projectId) },
     ...groupItems,
     ...(project.sidebarGroupId ? [{ label: t('taskflow.menu.removeFromGroup'), action: () => moveProjectToGroup(projectId, null) }] : []),
@@ -2909,6 +2887,7 @@ function openContextMenu(
       button.appendChild(swatch);
       button.classList.add('context-menu__item--color');
       button.setAttribute('aria-label', item.label);
+      button.title = item.label;
     }
     else button.append(item.label);
     button.addEventListener('click', (event) => {

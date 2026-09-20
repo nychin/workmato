@@ -3,7 +3,7 @@
 [🇺🇸 English](README.md) · [🇨🇳 中文](README.zh-CN.md)
 
 [![License: PolyForm Noncommercial](https://img.shields.io/badge/License-PolyForm%20Noncommercial-2391e6.svg)](LICENSE)
-[![Version](https://img.shields.io/badge/version-1.4.1-brightgreen.svg)](https://github.com/nychin/workmato/releases)
+[![Version](https://img.shields.io/badge/version-1.4.2-brightgreen.svg)](https://github.com/nychin/workmato/releases)
 [![Platform](https://img.shields.io/badge/platform-Windows-0078d6.svg)](#)
 
 ![](assets/hero.png)
@@ -76,7 +76,7 @@
 
 ### 下载
 
-从 [Releases](https://github.com/nychin/workmato/releases) 下载 `workmato-setup-1.4.1.exe`（NSIS 安装包，可自定义安装目录），适用 Windows 10 / 11（64 位）。
+从 [Releases](https://github.com/nychin/workmato/releases) 下载 `workmato-setup-1.4.2.exe`（NSIS 安装包，可自定义安装目录），适用 Windows 10 / 11（64 位）。
 
 ### 说明
 
